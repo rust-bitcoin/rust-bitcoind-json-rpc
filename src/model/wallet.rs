@@ -1,0 +1,88 @@
+// SPDX-License-Identifier: CC0-1.0
+
+//! Types for methods found under the `== Wallet ==` section of the API docs.
+//!
+//! These structs model the types returned by the JSON-RPC API but have concrete types
+//! and are not specific to a specific version of Bitcoin Core.
+
+use bitcoin::address::{Address, NetworkUnchecked};
+use bitcoin::{Amount, Txid};
+use serde::{Deserialize, Serialize};
+
+/// Model of the result of the JSON-RPC method `createwallet`.
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct CreateWallet {
+    /// The wallet name if created successfully.
+    ///
+    /// If the wallet was created using a full path, the wallet_name will be the full path.
+    pub name: String,
+    /// Warning messages, if any, related to creating and loading the wallet.
+    pub warnings: Vec<String>,
+}
+
+/// Model of the result of the JSON-RPC method `loadwallet`.
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct LoadWallet {
+    /// The wallet name if loaded successfully.
+    pub name: String,
+    /// Warning messages, if any, related to loading the wallet.
+    pub warnings: Vec<String>,
+}
+
+/// Model of the result of the JSON-RPC method `unloadwallet`.
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct UnloadWallet {
+    /// Warning messages, if any, related to unloading the wallet.
+    pub warnings: Vec<String>,
+}
+
+/// Model of the result of the JSON-RPC method `getbalance`.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetBalance(pub Amount);
+
+/// Model of the result of the JSON-RPC method `getbalances`.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetBalances {
+    /// Balances from outputs that the wallet can sign.
+    pub mine: GetBalancesMine,
+    pub watch_only: Option<GetBalancesWatchOnly>,
+}
+
+/// Balances from outputs that the wallet can sign.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetBalancesMine {
+    /// Trusted balance (outputs created by the wallet or confirmed outputs).
+    pub trusted: Amount,
+    /// Untrusted pending balance (outputs created by others that are in the mempool).
+    pub untrusted_pending: Amount,
+    /// Balance from immature coinbase outputs.
+    pub immature: Amount,
+    /// Balance from coins sent to addresses that were previously spent from (potentially privacy violating).
+    ///
+    /// Only present if `avoid_reuse` is set.
+    pub used: Option<Amount>,
+}
+
+/// Hash and height of the block this information was generated on.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetBalancesWatchOnly {
+    /// Trusted balance (outputs created by the wallet or confirmed outputs).
+    pub trusted: Amount,
+    /// Untrusted pending balance (outputs created by others that are in the mempool).
+    pub untrusted_pending: Amount,
+    /// Balance from immature coinbase outputs.
+    pub immature: Amount,
+}
+
+/// Model of the result of the JSON-RPC method `getnewaddress`.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetNewAddress(pub Address<NetworkUnchecked>);
+
+/// Model of the result of the JSON-RPC method `sendtoaddress`.
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct SendToAddress {
+    /// The transaction id.
+    pub txid: Txid,
+    /// The transaction fee reason.
+    pub fee_reason: String,
+}

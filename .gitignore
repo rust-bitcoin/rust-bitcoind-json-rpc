@@ -1,0 +1,4 @@
+# gitignore for rust-bitcoin-core-json-rpc
+
+Cargo.lock
+/target

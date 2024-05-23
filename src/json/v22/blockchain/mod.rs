@@ -1,0 +1,166 @@
+// SPDX-License-Identifier: CC0-1.0
+
+//! Types for methods found under the blockchain section of the API docs.
+//!
+//! The JSON-RPC API for Bitcoin Core v22.1
+//!
+//! == Blockchain ==
+//!
+//! - [x] getbestblockhash
+//! - [ ] getblock "blockhash" ( verbosity )
+//! - [x] getblockchaininfo
+//! - [ ] getblockcount
+//! - [ ] getblockfilter "blockhash" ( "filtertype" )
+//! - [ ] getblockhash height
+//! - [ ] getblockheader "blockhash" ( verbose )
+//! - [ ] getblockstats hash_or_height ( stats )
+//! - [ ] getchaintips
+//! - [ ] getchaintxstats ( nblocks "blockhash" )
+//! - [ ] getdifficulty
+//! - [ ] getmempoolancestors "txid" ( verbose )
+//! - [ ] getmempooldescendants "txid" ( verbose )
+//! - [ ] getmempoolentry "txid"
+//! - [ ] getmempoolinfo
+//! - [ ] getrawmempool ( verbose mempool_sequence )
+//! - [ ] gettxout "txid" n ( include_mempool )
+//! - [ ] gettxoutproof ["txid",...] ( "blockhash" )
+//! - [ ] gettxoutsetinfo ( "hash_type" hash_or_height use_index )
+//! - [ ] preciousblock "blockhash"
+//! - [ ] pruneblockchain height
+//! - [ ] savemempool
+//! - [ ] scantxoutset "action" ( [scanobjects,...] )
+//! - [ ] verifychain ( checklevel nblocks )
+//! - [ ] verifytxoutproof "proof"
+
+mod convert;
+
+use std::collections::BTreeMap;
+
+use serde::{Deserialize, Serialize};
+
+#[rustfmt::skip]                // Keep public re-exports separate.
+pub use crate::json::v17::blockchain::{GetBestBlockHash, GetBlockVerbosityZero, GetBlockVerbosityOne, GetTxOut};
+
+/// Result of JSON-RPC method `getblockchaininfo`.
+///
+/// Method call: `getblockchaininfo`
+///
+/// > Returns an object containing various state info regarding blockchain processing.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockchainInfo {
+    /// Current network name as defined in BIP70 (main, test, signet, regtest).
+    pub chain: String,
+    /// The current number of blocks processed in the server.
+    pub blocks: u64,
+    /// The current number of headers we have validated.
+    pub headers: u64,
+    /// The hash of the currently best block.
+    #[serde(rename = "bestblockhash")]
+    pub best_block_hash: String,
+    /// The current difficulty.
+    pub difficulty: f64,
+    /// Median time for the current best block.
+    #[serde(rename = "mediantime")]
+    pub median_time: u64,
+    /// Estimate of verification progress (between 0 and 1).
+    #[serde(rename = "verificationprogress")]
+    pub verification_progress: f64,
+    /// Estimate of whether this node is in Initial Block Download (IBD) mode.
+    #[serde(rename = "initialblockdownload")]
+    pub initial_block_download: bool,
+    /// Total amount of work in active chain, in hexadecimal.
+    #[serde(rename = "chainwork")]
+    pub chain_work: String,
+    /// The estimated size of the block and undo files on disk.
+    pub size_on_disk: u64,
+    /// If the blocks are subject to pruning.
+    pub pruned: bool,
+    /// Lowest-height complete block stored (only present if pruning is enabled).
+    #[serde(rename = "pruneheight")]
+    pub prune_height: Option<u64>,
+    /// Whether automatic pruning is enabled (only present if pruning is enabled).
+    pub automatic_pruning: Option<bool>,
+    /// The target size used by pruning (only present if automatic pruning is enabled).
+    pub prune_target_size: Option<u64>,
+    /// Status of softforks in progress, maps softfork name -> [`Softfork`].
+    #[serde(default)]
+    pub softforks: BTreeMap<String, Softfork>,
+    /// Any network and blockchain warnings.
+    pub warnings: String,
+}
+
+/// Status of softfork.
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct Softfork {
+    /// The [`SoftforkType`]: one of "burried", "bip9".
+    #[serde(rename = "type")]
+    pub type_: SoftforkType,
+    /// The status of bip9 softforks (only for "bip9" type).
+    pub bip9: Option<Bip9SoftforkInfo>,
+    ///  Height of the first block which the rules are or will be enforced (only for "buried" type, or "bip9" type with "active" status).
+    pub height: Option<u64>,
+    /// `true` if the rules are enforced for the mempool and the next block.
+    pub active: bool,
+}
+
+/// The softfork type: one of "burried", "bip9".
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum SoftforkType {
+    /// Softfork is "burried" (as defined in [BIP-90]).
+    ///
+    /// [BIP-90] <https://github.com/bitcoin/bips/blob/master/bip-0090.mediawiki>
+    Buried,
+    /// Softfork is "bip9" (see [BIP-9]).
+    ///
+    /// [BIP-9] <https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki>
+    Bip9,
+}
+
+/// Status of BIP-9 softforks.
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
+pub struct Bip9SoftforkInfo {
+    /// One of "defined", "started", "locked_in", "active", "failed".
+    pub status: Bip9SoftforkStatus,
+    /// The bit (0-28) in the block version field used to signal this softfork (only for "started" status).
+    pub bit: Option<u8>,
+    /// The minimum median time past of a block at which the bit gains its meaning.
+    pub start_time: i64,
+    /// The median time past of a block at which the deployment is considered failed if not yet locked in.
+    pub timeout: u64,
+    /// Height of the first block to which the status applies.
+    pub since: u32,
+    /// Numeric statistics about BIP-9 signalling for a softfork (only for "started" status).
+    pub statistics: Option<Bip9SoftforkStatistics>,
+}
+
+/// BIP-9 softfork status: one of "defined", "started", "locked_in", "active", "failed".
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Bip9SoftforkStatus {
+    /// BIP-9 softfork status "defined".
+    Defined,
+    /// BIP-9 softfork status "started".
+    Started,
+    /// BIP-9 softfork status "locked_in".
+    LockedIn,
+    /// BIP-9 softfork status "active".
+    Active,
+    /// BIP-9 softfork status "failed".
+    Failed,
+}
+
+/// Statistics for a BIP-9 softfork.
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
+pub struct Bip9SoftforkStatistics {
+    /// The length in blocks of the BIP9 signalling period.
+    pub period: u32,
+    /// The number of blocks with the version bit set required to activate the feature.
+    pub threshold: Option<u32>,
+    /// The number of blocks elapsed since the beginning of the current period.
+    pub elapsed: u32,
+    /// The number of blocks with the version bit set in the current period.
+    pub count: u32,
+    /// `false` if there are not enough blocks left in this period to pass activation threshold.
+    pub possible: Option<bool>,
+}
