@@ -130,66 +130,6 @@ macro_rules! impl_client_helpers {
     };
 }
 
-/// Implements bitcoind JSON-RPC API methods that are the same for all supported versions of `bitcoind`.
-///
-/// Expects the JSON types to be in scope e.g., `use bitcoind_json_rpc::json::v22::*;`.
-///
-/// The 22 above is correct, these methods were first supported by this lib for `v0.17.1`
-/// but this macro can be used with later versioned json types.
-#[macro_export]
-macro_rules! impl_client_base_api {
-    () => {
-        use bitcoin::address::{Address, NetworkChecked};
-        use bitcoin::Amount;
-
-        use super::*;
-
-        impl Client {
-            //
-            // == Blockchain ==
-            //
-
-            // TODO: Add support for getblock verbosity==2.
-            //
-            // pub fn get_block_verbosity_two()(&self, hash: &BlockHash) -> Result<GetBlockVerbosityTwo> {
-            //     self.call("getblock", &[into_json(hash)?, 2.into()])
-            // }
-
-            pub fn get_tx_out(&self, txid: Txid, vout: u64) -> Result<GetTxOut> {
-                self.call("gettxout", &[into_json(txid)?, into_json(vout)?])
-            }
-
-            //
-            // == Control ==
-            //
-
-            //
-            // == Mining ==
-            //
-
-            //
-            // == Rawtransactions ==
-            //
-
-            //
-            // == Signer ==
-            //
-
-            //
-            // == Util ==
-            //
-
-            //
-            // == Wallet ==
-            //
-
-            //
-            // == Zmq ==
-            //
-        }
-    };
-}
-
 /// Shorthand for converting a variable into a `serde_json::Value`.
 fn into_json<T>(val: T) -> Result<serde_json::Value>
 where
