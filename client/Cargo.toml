@@ -1,0 +1,40 @@
+[package]
+name = "bitcoind-json-rpc-client"
+version = "0.1.0"
+authors = [
+    "Steven Roose <steven@stevenroose.org>",
+    "Jean Pierre Dudey <jeandudey@hotmail.com>",
+    "Dawid Ciężarkiewicz <dpc@dpc.pw>",
+    "Tobin C. Harding <me@tobin.cc>"
+]
+license = "CC0-1.0"
+description = "Bitcoin Core JSON-RPC client"
+keywords = ["bitcoin", "bitcoind", "json-rpc"]
+edition = "2021"
+
+[features]
+default = []
+# Enable this feature to get a blocking JSON-RPC client.
+client-sync = ["jsonrpc"]
+
+[dependencies]
+bitcoin = { version = "0.32.0", default-features = false, features = ["std", "serde"] }
+json = { package = "bitcoind-json-rpc-types", version = "0.1.0", default-features = false, features = [] }
+internals = { package = "bitcoin-internals", version = "0.3.0", default-features = false,  features = ["std"] }
+log = "0.4"
+serde = { version = "1.0.103", default-features = false, features = [ "derive", "alloc" ] }
+serde_json = { version = "1.0.117" }
+
+jsonrpc = { version = "0.18.0", features = ["minreq_http"], optional = true }
+
+[dev-dependencies]
+rand = "0.8.5"
+env_logger = "0.9.0"
+# FIXME: How are we going to handle features (using features in this crate, ugh!)?
+bitcoind = { version = "0.36.0", features = ["22_1"] }
+
+[patch.crates-io.bitcoind]
+path = "/home/tobin/build/github.com/tcharding/bitcoind/bitcoind-json-rpc"
+
+[patch.crates-io.bitcoind-json-rpc]
+path = "."

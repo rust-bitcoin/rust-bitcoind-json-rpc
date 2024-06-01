@@ -1,0 +1,24 @@
+[package]
+name = "bitcoind-json-rpc-types"
+version = "0.1.0"
+authors = [
+    "Steven Roose <steven@stevenroose.org>",
+    "Jean Pierre Dudey <jeandudey@hotmail.com>",
+    "Dawid Ciężarkiewicz <dpc@dpc.pw>",
+    "Tobin C. Harding <me@tobin.cc>"
+]
+license = "CC0-1.0"
+description = "Bitcoin Core JSON-RPC API types"
+keywords = ["bitcoin", "bitcoind", "json-rpc"]
+edition = "2021"
+
+[features]
+default = []
+
+[dependencies]
+bitcoin = { version = "0.32.0", default-features = false, features = ["std", "serde"] }
+internals = { package = "bitcoin-internals", version = "0.3.0", default-features = false,  features = ["std"] }
+serde = { version = "1.0.103", default-features = false, features = [ "derive", "alloc" ] }
+serde_json = { version = "1.0.117" }
+
+[dev-dependencies]
