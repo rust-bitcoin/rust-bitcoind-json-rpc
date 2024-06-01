@@ -20,8 +20,8 @@
 //! - [ ] getaddressbyaccount (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
 //! - [ ] getaddressesbylabel "label"
 //! - [ ] getaddressinfo "address"
-//! - [ ] getbalance ( "(dummy)" minconf include_watchonly )
-//! - [ ] getnewaddress ( "label" "address_type" )
+//! - [x] getbalance ( "(dummy)" minconf include_watchonly )
+//! - [x] getnewaddress ( "label" "address_type" )
 //! - [ ] getrawchangeaddress ( "address_type" )
 //! - [ ] getreceivedbyaccount (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
 //! - [ ] getreceivedbyaddress "address" ( minconf )
@@ -52,7 +52,7 @@
 //! - [ ] rescanblockchain ("start_height") ("stop_height")
 //! - [ ] sendfrom (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
 //! - [ ] sendmany "" {"address":amount,...} ( minconf "comment" ["address",...] replaceable conf_target "estimate_mode")
-//! - [ ] sendtoaddress "address" amount ( "comment" "comment_to" subtractfeefromamount replaceable conf_target "estimate_mode")
+//! - [x] sendtoaddress "address" amount ( "comment" "comment_to" subtractfeefromamount replaceable conf_target "estimate_mode")
 //! - [ ] setaccount (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
 //! - [ ] sethdseed ( "newkeypool" "seed" )
 //! - [ ] settxfee amount

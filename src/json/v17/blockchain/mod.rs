@@ -6,9 +6,9 @@
 //!
 //! == Blockchain ==
 //!
-//! - [ ] getbestblockhash
-//! - [ ] getblock "blockhash" ( verbosity )
-//! - [ ] getblockchaininfo
+//! - [x] getbestblockhash
+//! - [x] getblock "blockhash" ( verbosity )
+//! - [x] getblockchaininfo
 //! - [ ] getblockcount
 //! - [ ] getblockhash height
 //! - [ ] getblockheader "hash" ( verbose )
