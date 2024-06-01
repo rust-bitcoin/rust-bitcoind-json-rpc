@@ -17,20 +17,19 @@ Usage:
 
 COMMAND
    - all                      Start all known bitcoind versions.
-   - start [KNOWN_VERSION]    Start bitcoind nodes, defaults to v26.
+   - start [KNOWN_VERSION]    Start bitcoind nodes, defaults to v22.
    - stop                     Kill all bitcoind nodes using 'pkill bitcoind'.
 
 KNOWN_VERSION
    - v17                Bitcoin Core v0.17.1
    - v22                Bitcoin Core v22.1
-   - v26                Bitcoin Core v26.1
 
 EOF
 }
 
 main() {
     local cmd="${1:-usage}"
-    local version="${2:-v26}"
+    local version="${2:-v22}"
 
     # FIXME: This is a hackish way to get the help flag.
     if [ "$cmd" = "usage" ] || [ "$cmd" = "-h" ] || [ "$cmd" = "--help" ] || [ "$cmd" = "help" ]; then
@@ -42,7 +41,6 @@ main() {
         all)
             start "v17"
             start "v22"
-            start "v26"
             ;;
 
         start)
@@ -53,7 +51,6 @@ main() {
             pkill bitcoind
             rm -rf "/tmp/rust-bitcoind-json-rpc-0.17.1/2/regtest/wallets" > /dev/null
             rm -rf "/tmp/rust-bitcoind-json-rpc-22.1/2/regtest/wallets" > /dev/null
-            rm -rf  "/tmp/rust-bitcoind-json-rpc-26.1/2/regtest/wallets" > /dev/null
             ;;
         *)
             usage
@@ -73,12 +70,6 @@ start() {
             run_bitcoind "$version" "$version_number" "$version_id"
             ;;
 
-        v26)
-            local version_number="26.1"
-            local version_id="261"
-            run_bitcoind "$version" "$version_number" "$version_id"
-            ;;
-
         v22)
             local version_number="22.1"
             local version_id="221"
@@ -92,9 +83,9 @@ start() {
 }
 
 run_bitcoind() {
-    local version="$1"          # eg, v26
-    local version_number="$2"   # eg, 26.1
-    local version_id="$3"       # eg, 261
+    local version="$1"          # eg, v22
+    local version_number="$2"   # eg, 22.1
+    local version_id="$3"       # eg, 221
 
     local test_dir="/tmp/rust-bitcoind-json-rpc-${version_number}"
     local bitcoind="/opt/bitcoin-${version_number}/bin/bitcoind"
