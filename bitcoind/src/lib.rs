@@ -19,6 +19,7 @@ use tempfile::TempDir;
 pub use {anyhow, tempfile, which};
 
 use self::client::Client;
+#[allow(unused_imports)]         // for --no-default-features
 use self::versions::VERSION;
 
 #[derive(Debug)]

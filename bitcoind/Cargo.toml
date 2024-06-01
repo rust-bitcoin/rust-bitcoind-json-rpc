@@ -31,9 +31,11 @@ minreq = { version = "2.9.1", default-features = false, features = [
 zip = { version = "0.6", optional = true }
 anyhow = "1.0.66"
 
+# Please note, in this crate the version features are mutally exclusive.
+#
+# - `cargo test --all-features` is the same as `cargo test --features=v26_0`
+# - `cargo test --no-default-features` uses `v26_0` also.
 [features]
-"default" = []
-
 # download is not supposed to be used directly only through selecting one of the version feature
 "download" = ["bitcoin_hashes", "flate2", "tar", "minreq", "zip"]
 
@@ -63,3 +65,12 @@ anyhow = "1.0.66"
 [package.metadata.docs.rs]
 features = ["download", "doc"]
 rustdoc-args = ["--cfg", "docsrs"]
+
+[patch.crates-io.bitcoind-json-rpc-client]
+path = "../client"
+
+[patch.crates-io.bitcoind-json-rpc-types]
+path = "../json"
+
+[patch.crates-io.bitcoind]
+path = "../bitcoind"
