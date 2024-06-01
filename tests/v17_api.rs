@@ -42,6 +42,7 @@ mod wallet {
     use super::*;
 
     crate::impl_test_v17__createwallet!();
+    crate::impl_test_v17__loadwallet!();
     // crate::impl_test_v17__unloadwallet!();
 
     crate::impl_test_v17__getnewaddress!();

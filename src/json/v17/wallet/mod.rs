@@ -45,7 +45,7 @@
 //! - [ ] listtransactions (label count skip include_watchonly)
 //! - [ ] listunspent ( minconf maxconf  ["addresses",...] [include_unsafe] [query_options])
 //! - [ ] listwallets
-//! - [ ] loadwallet "filename"
+//! - [x] loadwallet "filename"
 //! - [ ] lockunspent unlock ([{"txid":"txid","vout":n},...])
 //! - [ ] move (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
 //! - [ ] removeprunedfunds "txid"
