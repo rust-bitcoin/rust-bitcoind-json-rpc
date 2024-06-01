@@ -18,7 +18,7 @@
 //! - [ ] getaddressesbylabel "label"
 //! - [ ] getaddressinfo "address"
 //! - [x] getbalance ( "dummy" minconf include_watchonly avoid_reuse )
-//! - [ ] getbalances
+//! - [x] getbalances
 //! - [x] getnewaddress ( "label" "address_type" )
 //! - [ ] getrawchangeaddress ( "address_type" )
 //! - [ ] getreceivedbyaddress "address" ( minconf )
@@ -52,7 +52,7 @@
 //! - [ ] rescanblockchain ( start_height stop_height )
 //! - [ ] send [{"address":amount,...},{"data":"hex"},...] ( conf_target "estimate_mode" fee_rate options )
 //! - [ ] sendmany "" {"address":amount,...} ( minconf "comment" ["address",...] replaceable conf_target "estimate_mode" fee_rate verbose )
-//! - [ ] sendtoaddress "address" amount ( "comment" "comment_to" subtractfeefromamount replaceable conf_target "estimate_mode" avoid_reuse fee_rate verbose )
+//! - [x] sendtoaddress "address" amount ( "comment" "comment_to" subtractfeefromamount replaceable conf_target "estimate_mode" avoid_reuse fee_rate verbose )
 //! - [ ] sethdseed ( newkeypool "seed" )
 //! - [ ] setlabel "address" "label"
 //! - [ ] settxfee amount

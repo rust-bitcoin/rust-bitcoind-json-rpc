@@ -7,7 +7,7 @@
 //! == Blockchain ==
 //!
 //! - [x] getbestblockhash
-//! - [ ] getblock "blockhash" ( verbosity )
+//! - [x] getblock "blockhash" ( verbosity )
 //! - [x] getblockchaininfo
 //! - [ ] getblockcount
 //! - [ ] getblockfilter "blockhash" ( "filtertype" )
