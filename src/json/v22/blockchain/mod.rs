@@ -1,36 +1,8 @@
 // SPDX-License-Identifier: CC0-1.0
 
-//! Types for methods found under the blockchain section of the API docs.
+//! The JSON-RPC API for Bitcoin Core v22.1 - blockchain.
 //!
-//! The JSON-RPC API for Bitcoin Core v22.1
-//!
-//! == Blockchain ==
-//!
-//! - [x] getbestblockhash
-//! - [x] getblock "blockhash" ( verbosity )
-//! - [x] getblockchaininfo
-//! - [ ] getblockcount
-//! - [ ] getblockfilter "blockhash" ( "filtertype" )
-//! - [ ] getblockhash height
-//! - [ ] getblockheader "blockhash" ( verbose )
-//! - [ ] getblockstats hash_or_height ( stats )
-//! - [ ] getchaintips
-//! - [ ] getchaintxstats ( nblocks "blockhash" )
-//! - [ ] getdifficulty
-//! - [ ] getmempoolancestors "txid" ( verbose )
-//! - [ ] getmempooldescendants "txid" ( verbose )
-//! - [ ] getmempoolentry "txid"
-//! - [ ] getmempoolinfo
-//! - [ ] getrawmempool ( verbose mempool_sequence )
-//! - [ ] gettxout "txid" n ( include_mempool )
-//! - [ ] gettxoutproof ["txid",...] ( "blockhash" )
-//! - [ ] gettxoutsetinfo ( "hash_type" hash_or_height use_index )
-//! - [ ] preciousblock "blockhash"
-//! - [ ] pruneblockchain height
-//! - [ ] savemempool
-//! - [ ] scantxoutset "action" ( [scanobjects,...] )
-//! - [ ] verifychain ( checklevel nblocks )
-//! - [ ] verifytxoutproof "proof"
+//! Types for methods found under the `== Blockchain ==` section of the API docs.
 
 mod convert;
 
@@ -39,7 +11,6 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 #[rustfmt::skip]                // Keep public re-exports separate.
-pub use crate::json::v17::blockchain::{GetBestBlockHash, GetBlockVerbosityZero, GetBlockVerbosityOne, GetTxOut};
 
 /// Result of JSON-RPC method `getblockchaininfo`.
 ///

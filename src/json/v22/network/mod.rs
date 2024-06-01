@@ -1,24 +1,8 @@
 // SPDX-License-Identifier: CC0-1.0
 
-//! Types for methods found under the wallet section of the API docs.
+//! The JSON-RPC API for Bitcoin Core v22.1 - network.
 //!
-//! The JSON-RPC API for Bitcoin Core v22.1:
-//!
-//!  == Network ==
-//!
-//! - [ ] addnode "node" "command"
-//! - [ ] clearbanned
-//! - [ ] disconnectnode ( "address" nodeid )
-//! - [ ] getaddednodeinfo ( "node" )
-//! - [ ] getconnectioncount
-//! - [ ] getnettotals
-//! - [x] getnetworkinfo
-//! - [ ] getnodeaddresses ( count "network" )
-//! - [ ] getpeerinfo
-//! - [ ] listbanned
-//! - [ ] ping
-//! - [ ] setban "subnet" "command" ( bantime absolute )
-//! - [ ] setnetworkactive state
+//! Types for methods found under the `== Network ==` section of the API docs.
 
 mod convert;
 

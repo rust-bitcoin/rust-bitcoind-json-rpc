@@ -1,78 +1,13 @@
 // SPDX-License-Identifier: CC0-1.0
 
-//! Types for methods found under the wallet section of the API docs.
+//! The JSON-RPC API for Bitcoin Core v22.1 - wallet.
 //!
-//! The JSON-RPC API for Bitcoin Core v22.1:
-//!
-//!  == Wallet ==
-//!
-//! - [ ] abandontransaction "txid"
-//! - [ ] abortrescan
-//! - [ ] addmultisigaddress nrequired ["key",...] ( "label" "address_type" )
-//! - [ ] backupwallet "destination"
-//! - [ ] bumpfee "txid" ( options )
-//! - [x] createwallet "wallet_name" ( disable_private_keys blank "passphrase" avoid_reuse descriptors load_on_startup external_signer )
-//! - [ ] dumpprivkey "address"
-//! - [ ] dumpwallet "filename"
-//! - [ ] encryptwallet "passphrase"
-//! - [ ] getaddressesbylabel "label"
-//! - [ ] getaddressinfo "address"
-//! - [x] getbalance ( "dummy" minconf include_watchonly avoid_reuse )
-//! - [x] getbalances
-//! - [x] getnewaddress ( "label" "address_type" )
-//! - [ ] getrawchangeaddress ( "address_type" )
-//! - [ ] getreceivedbyaddress "address" ( minconf )
-//! - [ ] getreceivedbylabel "label" ( minconf )
-//! - [ ] gettransaction "txid" ( include_watchonly verbose )
-//! - [ ] getunconfirmedbalance
-//! - [ ] getwalletinfo
-//! - [ ] importaddress "address" ( "label" rescan p2sh )
-//! - [ ] importdescriptors "requests"
-//! - [ ] importmulti "requests" ( "options" )
-//! - [ ] importprivkey "privkey" ( "label" rescan )
-//! - [ ] importprunedfunds "rawtransaction" "txoutproof"
-//! - [ ] importpubkey "pubkey" ( "label" rescan )
-//! - [ ] importwallet "filename"
-//! - [ ] keypoolrefill ( newsize )
-//! - [ ] listaddressgroupings
-//! - [ ] listdescriptors
-//! - [ ] listlabels ( "purpose" )
-//! - [ ] listlockunspent
-//! - [ ] listreceivedbyaddress ( minconf include_empty include_watchonly "address_filter" )
-//! - [ ] listreceivedbylabel ( minconf include_empty include_watchonly )
-//! - [ ] listsinceblock ( "blockhash" target_confirmations include_watchonly include_removed )
-//! - [ ] listtransactions ( "label" count skip include_watchonly )
-//! - [ ] listunspent ( minconf maxconf ["address",...] include_unsafe query_options )
-//! - [ ] listwalletdir
-//! - [ ] listwallets
-//! - [x] loadwallet "filename" ( load_on_startup )
-//! - [ ] lockunspent unlock ( [{"txid":"hex","vout":n},...] )
-//! - [ ] psbtbumpfee "txid" ( options )
-//! - [ ] removeprunedfunds "txid"
-//! - [ ] rescanblockchain ( start_height stop_height )
-//! - [ ] send [{"address":amount,...},{"data":"hex"},...] ( conf_target "estimate_mode" fee_rate options )
-//! - [ ] sendmany "" {"address":amount,...} ( minconf "comment" ["address",...] replaceable conf_target "estimate_mode" fee_rate verbose )
-//! - [x] sendtoaddress "address" amount ( "comment" "comment_to" subtractfeefromamount replaceable conf_target "estimate_mode" avoid_reuse fee_rate verbose )
-//! - [ ] sethdseed ( newkeypool "seed" )
-//! - [ ] setlabel "address" "label"
-//! - [ ] settxfee amount
-//! - [ ] setwalletflag "flag" ( value )
-//! - [ ] signmessage "address" "message"
-//! - [ ] signrawtransactionwithwallet "hexstring" ( [{"txid":"hex","vout":n,"scriptPubKey":"hex","redeemScript":"hex","witnessScript":"hex","amount":amount},...] "sighashtype" )
-//! - [x] unloadwallet ( "wallet_name" load_on_startup )
-//! - [ ] upgradewallet ( version )
-//! - [ ] walletcreatefundedpsbt ( [{"txid":"hex","vout":n,"sequence":n},...] ) [{"address":amount,...},{"data":"hex"},...] ( locktime options bip32derivs )
-//! - [ ] walletdisplayaddress bitcoin address to display
-//! - [ ] walletlock
-//! - [ ] walletpassphrase "passphrase" timeout
-//! - [ ] walletpassphrasechange "oldpassphrase" "newpassphrase"
-//! - [ ] walletprocesspsbt "psbt" ( sign "sighashtype" bip32derivs )
+//! Types for methods found under the `== Wallet ==` section of the API docs.
+
 
 mod convert;
 
 use serde::{Deserialize, Serialize};
-
-pub use crate::json::v17::wallet::GetNewAddress;
 
 /// Result of the JSON-RPC method `createwallet`.
 ///
