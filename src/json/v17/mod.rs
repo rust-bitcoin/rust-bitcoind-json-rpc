@@ -191,6 +191,7 @@ pub use blockchain::*;
 // verifytxoutproof "proof"
 
 //  == Control ==
+#[allow(unused_imports)]        // TODO: Remove this.
 pub use control::*;
 // getmemoryinfo ("mode")
 // help ( "command" )
@@ -203,6 +204,7 @@ pub use generating::*;
 // generate nblocks ( maxtries )
 
 //  == Mining ==
+#[allow(unused_imports)]        // TODO: Remove this.
 pub use mining::*;
 // getblocktemplate ( TemplateRequest )
 // getmininginfo
@@ -226,6 +228,7 @@ pub use network::*;
 // setnetworkactive true|false
 
 //  == Rawtransactions ==
+#[allow(unused_imports)]        // TODO: Remove this.
 pub use raw_transactions::*;
 // combinepsbt ["psbt",...]
 // combinerawtransaction ["hexstring",...]
@@ -244,6 +247,7 @@ pub use raw_transactions::*;
 // testmempoolaccept ["rawtxs"] ( allowhighfees )
 
 //  == Util ==
+#[allow(unused_imports)]        // TODO: Remove this.
 pub use util::*;
 // createmultisig nrequired ["key",...] ( "address_type" )
 // estimatesmartfee conf_target ("estimate_mode")
@@ -314,6 +318,7 @@ pub use wallet::*;
 
 
 //  == Zmq ==
+#[allow(unused_imports)]        // TODO: Remove this.
 pub use zmq::*;
 // getzmqnotifications
 
