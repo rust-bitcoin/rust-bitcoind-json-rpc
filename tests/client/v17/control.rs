@@ -11,8 +11,8 @@ macro_rules! impl_test_v17__stop {
     () => {
         #[test]
         fn stop() {
-            let client = client();
-            let _ = client.stop().expect("stop");
+            let bitcoind = bitcoind_no_wallet();
+            let _ = bitcoind.client.stop().expect("stop");
         }
     };
 }

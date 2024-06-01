@@ -37,7 +37,7 @@
 //! - [ ] `getmemoryinfo ("mode")`
 //! - [ ] `help ( "command" )`
 //! - [ ] `logging ( <include> <exclude> )`
-//! - [ ] `stop`
+//! - [x] `stop`
 //! - [ ] `uptime`
 //!
 //! **== Generating ==**
@@ -195,7 +195,6 @@ pub use control::*;
 // getmemoryinfo ("mode")
 // help ( "command" )
 // logging ( <include> <exclude> )
-// stop
 // uptime
 
 //  == Generating ==

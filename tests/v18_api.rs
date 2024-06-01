@@ -17,9 +17,9 @@ mod blockchain {
 
 // == Control ==
 mod control {
-    // use super::*;
+    use super::*;
 
-    // crate::impl_test_v17__stop!();
+    crate::impl_test_v17__stop!();
 }
 
 // == Generating ==

@@ -36,7 +36,7 @@
 //! - [ ] `getrpcinfo`
 //! - [ ] `help ( "command" )`
 //! - [ ] `logging ( ["include_category",...] ["exclude_category",...] )`
-//! - [ ] `stop`
+//! - [x] `stop`
 //! - [ ] `uptime`
 //!
 //! ** == Generating ==**
@@ -191,7 +191,6 @@ pub use crate::json::v17::GetTxOut;
 // getrpcinfo
 // help ( "command" )
 // logging ( ["include_category",...] ["exclude_category",...] )
-// stop
 // uptime
 
 // == Generating ==
