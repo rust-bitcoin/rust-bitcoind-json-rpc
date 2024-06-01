@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 #
 # Run local regtest `bitcoind` nodes.
+#
+# shell: alias bt18='bitcoin-cli -rpcconnect=localhost:18149 -rpcuser=user -rpcpassword=password'
 
 set -euo pipefail
 
@@ -22,6 +24,7 @@ COMMAND
 
 KNOWN_VERSION
    - v17                Bitcoin Core v0.17.1
+   - v18                Bitcoin Core v0.18.1
    - v22                Bitcoin Core v22.1
 
 EOF
@@ -40,6 +43,7 @@ main() {
     case $cmd in
         all)
             start "v17"
+            start "v18"
             start "v22"
             ;;
 
@@ -50,6 +54,7 @@ main() {
         stop)
             pkill bitcoind
             rm -rf "/tmp/rust-bitcoind-json-rpc-0.17.1/2/regtest/wallets" > /dev/null
+            rm -rf "/tmp/rust-bitcoind-json-rpc-0.18.1/2/regtest/wallets" > /dev/null
             rm -rf "/tmp/rust-bitcoind-json-rpc-22.1/2/regtest/wallets" > /dev/null
             ;;
         *)
@@ -67,6 +72,12 @@ start() {
         v17)
             local version_number="0.17.1"
             local version_id="171"
+            run_bitcoind "$version" "$version_number" "$version_id"
+            ;;
+
+        v18)
+            local version_number="0.18.1"
+            local version_id="181"
             run_bitcoind "$version" "$version_number" "$version_id"
             ;;
 

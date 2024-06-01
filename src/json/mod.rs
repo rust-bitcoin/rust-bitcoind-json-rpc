@@ -6,4 +6,5 @@
 //! latest minor version number for each major release i.e., `v22` means `bitcoind v22.1`.
 
 pub mod v17;
+pub mod v18;
 pub mod v22;
