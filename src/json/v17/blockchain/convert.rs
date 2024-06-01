@@ -107,8 +107,7 @@ impl fmt::Display for GetBlockVerbosityOneError {
     }
 }
 
-#[cfg(feature = "std")]
-impl std::error::Error for model::GetBlockVerbosityOneError {
+impl std::error::Error for GetBlockVerbosityOneError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         use GetBlockVerbosityOneError::*;
 
@@ -177,8 +176,7 @@ impl fmt::Display for GetTxOutError {
     }
 }
 
-#[cfg(feature = "std")]
-impl std::error::Error for model::GetTxOutError {
+impl std::error::Error for GetTxOutError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         use GetTxOutError::*;
 

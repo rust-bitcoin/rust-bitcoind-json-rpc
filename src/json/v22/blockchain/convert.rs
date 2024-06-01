@@ -74,7 +74,6 @@ impl fmt::Display for GetBlockchainInfoError {
     }
 }
 
-#[cfg(feature = "std")]
 impl std::error::Error for GetBlockchainInfoError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         use GetBlockchainInfoError::*;
