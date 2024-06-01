@@ -11,8 +11,8 @@ macro_rules! impl_test_v17__getnetworkinfo {
     () => {
         #[test]
         fn get_network_info() {
-            let client = client();
-            let _ = client.get_network_info().expect("getnetworkinfo");
+            let bitcoind = bitcoind_no_wallet();
+            let _ = bitcoind.client.get_network_info().expect("getnetworkinfo");
         }
     };
 }

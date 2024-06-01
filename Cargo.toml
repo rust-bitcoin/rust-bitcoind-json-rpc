@@ -17,6 +17,18 @@ default = []
 # Enable this feature to get JSON-RPC client code.
 client-sync = ["jsonrpc"]
 
+# These are only for controlling tests.
+"v26" = ["bitcoind/26_0"]       # FIXME: The `json/16` module was written for 26.1
+"v25" = ["bitcoind/25_1"]
+"v24" = ["bitcoind/24_0_1"]
+"v23" = ["bitcoind/23_1"]
+"v22" = ["bitcoind/22_1"]
+"v21" = ["bitcoind/0_21_2"]
+"v20" = ["bitcoind/0_20_2"]
+"v19" = ["bitcoind/0_19_1"]
+"v18" = ["bitcoind/0_18_1"]
+"v17" = ["bitcoind/0_17_1"]
+
 [dependencies]
 bitcoin = { version = "0.32.0", default-features = false, features = ["std", "serde"] }
 internals = { package = "bitcoin-internals", version = "0.3.0", default-features = false,  features = ["std"] }
@@ -28,3 +40,12 @@ jsonrpc = { version = "0.18.0", features = ["minreq_http"], optional = true }
 
 [dev-dependencies]
 rand = "0.8.5"
+env_logger = "0.9.0"
+# FIXME: How are we going to handle features (using features in this crate, ugh!)?
+bitcoind = { version = "0.36.0", features = ["22_1"] }
+
+[patch.crates-io.bitcoind]
+path = "/home/tobin/build/github.com/tcharding/bitcoind/bitcoind-json-rpc"
+
+[patch.crates-io.bitcoind-json-rpc]
+path = "."

@@ -11,16 +11,9 @@ macro_rules! impl_test_v17__generatetoaddress {
     () => {
         #[test]
         fn generate_to_address() {
-            // Use one client to create the new wallet.
-            let client = client();
-            let wallet = format!("wallet-{}", rand::random::<u32>()).to_string();
-            let _ = client.create_wallet(&wallet).expect("createwallet <random-wallet>");
-
-            // And another for the wallet path calls.
-            let wallet_client = client_for_wallet(&wallet);
-            let address = wallet_client.new_address().expect("getnewaddress");
-
-            let _ = client.generate_to_address(1, &address).expect("generatetoaddress");
+            let bitcoind = bitcoind_with_default_wallet();
+            let address = bitcoind.client.new_address().expect("failed to get new address");
+            let _ = bitcoind.client.generate_to_address(1, &address).expect("generatetoaddress");
         }
     };
 }

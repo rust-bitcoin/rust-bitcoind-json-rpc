@@ -1,14 +1,9 @@
 //! Test the JSON-RPC API against `bitcoind v26.0`.
 
-#![cfg(feature = "client-sync")]
+// FIXME: bitcoind crate does not support this yet.
+#![cfg(all(feature = "client-sync", feature = "v26"))]
 
 mod client;
-
-use bitcoind_json_rpc::client_sync::v26::Client;
-// use bitcoind_json_rpc::model;
-
-/// The `bitcoind` RPC port this test client should connect to.
-const RPC_PORT: u16 = 26149;
 
 client::impl_constructors!();
 

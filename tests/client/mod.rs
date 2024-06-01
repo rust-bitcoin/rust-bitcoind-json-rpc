@@ -6,33 +6,39 @@ pub mod v22;
 /// Requires `RPC_PORT` to be in scope.
 macro_rules! impl_constructors {
     () => {
-        /// Creates a `Client` using `http:://localhost:RPC_PORT/`.
-        #[allow(dead_code)] // Not all tests need this.
-        fn client() -> Client {
-            let url = format!("http://localhost:{}", RPC_PORT);
-            client_with_url(&url)
+        use bitcoind::BitcoinD;
+
+        /// Initialize a logger (configure with `RUST_LOG=trace cargo test`).
+        #[allow(dead_code)] // Not all tests use this function.
+        fn init_logger() { let _ = env_logger::try_init(); }
+
+        /// Returns a handle to a `bitcoind` instance with "default" wallet loaded.
+        #[allow(dead_code)] // Not all tests use this function.
+        fn bitcoind_with_default_wallet() -> BitcoinD {
+            let exe = bitcoind::exe_path().expect("failed to get bitcoind executable");
+
+            let conf = bitcoind::Conf::default();
+            BitcoinD::with_conf(exe, &conf).expect("failed to create BitcoinD")
         }
 
-        /// Creates a `Client` using `http:://localhost:RPC_PORT/wallet/<wallet>`.
-        #[allow(dead_code)] // Not all tests need this.
-        fn client_for_wallet(wallet: &str) -> Client {
-            let url = format!("http://localhost:{}/wallet/{}", RPC_PORT, wallet);
-            client_with_url(&url)
+        /// Returns a handle to a `bitcoind` instance without any wallets.
+        #[allow(dead_code)] // Not all tests use this function.
+        fn bitcoind_with_wallet(wallet: String) -> BitcoinD {
+            let exe = bitcoind::exe_path().expect("failed to get bitcoind executable");
+
+            let mut conf = bitcoind::Conf::default();
+            conf.wallet = Some(wallet);
+            BitcoinD::with_conf(exe, &conf).expect("failed to create BitcoinD")
         }
 
-        /// Creates a `Client` using `url`.
-        #[allow(dead_code)] // Not all tests need this.
-        fn client_with_url(url: &str) -> Client {
-            // See ../run-local-core-nodes.sh
-            const RPC_USER: &str = "user";
-            const RPC_PASSWORD: &str = "password";
+        /// Returns a handle to a `bitcoind` instance without any wallet loaded.
+        #[allow(dead_code)] // Not all tests use this function.
+        fn bitcoind_no_wallet() -> BitcoinD {
+            let exe = bitcoind::exe_path().expect("failed to get bitcoind executable");
 
-            let user = RPC_USER.to_string();
-            let pass = Some(RPC_PASSWORD.to_string());
-            let client = Client::new_with_auth(url, user, pass);
-
-            client.check_expected_server_version().expect("correct server version");
-            client
+            let mut conf = bitcoind::Conf::default();
+            conf.wallet = None;
+            BitcoinD::with_conf(exe, &conf).expect("failed to create BitcoinD")
         }
     };
 }

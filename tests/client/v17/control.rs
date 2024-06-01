@@ -10,7 +10,7 @@
 macro_rules! impl_test_v17__stop {
     () => {
         #[test]
-        fn get_blockchain_info() {
+        fn stop() {
             let client = client();
             let _ = client.stop().expect("stop");
         }

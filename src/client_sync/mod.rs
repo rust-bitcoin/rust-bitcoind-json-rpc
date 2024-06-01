@@ -7,12 +7,42 @@ pub mod v17;
 pub mod v22;
 pub mod v26;
 
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
+
 pub use crate::client_sync::error::Error;
 
 /// Crate-specific Result type.
 ///
 /// Shorthand for `std::result::Result` with our crate-specific [`Error`] type.
 pub type Result<T> = std::result::Result<T, Error>;
+
+/// The different authentication methods for the client.
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
+pub enum Auth {
+    None,
+    UserPass(String, String),
+    CookieFile(PathBuf),
+}
+
+impl Auth {
+    /// Convert into the arguments that jsonrpc::Client needs.
+    pub fn get_user_pass(self) -> Result<(Option<String>, Option<String>)> {
+        match self {
+            Auth::None => Ok((None, None)),
+            Auth::UserPass(u, p) => Ok((Some(u), Some(p))),
+            Auth::CookieFile(path) => {
+                let line = BufReader::new(File::open(path)?)
+                    .lines()
+                    .next()
+                    .ok_or(Error::InvalidCookieFile)??;
+                let colon = line.find(':').ok_or(Error::InvalidCookieFile)?;
+                Ok((Some(line[..colon].into()), Some(line[colon + 1..].into())))
+            }
+        }
+    }
+}
 
 /// Defines a `jsonrpc::Client` using `minreq`.
 ///
@@ -21,10 +51,9 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[macro_export]
 macro_rules! define_jsonrpc_minreq_client {
     () => {
-        use std::path::Path;
         use std::fmt;
 
-        use $crate::client_sync::{log_response, Result};
+        use $crate::client_sync::{log_response, Auth, Result};
         use $crate::client_sync::error::{Error, UnexpectedServerVersionError};
 
         /// Client implements a JSON-RPC client for the Bitcoin Core daemon or compatible APIs.
@@ -55,31 +84,20 @@ macro_rules! define_jsonrpc_minreq_client {
             }
 
             /// Creates a client to a bitcoind JSON-RPC server without authentication.
-            pub fn new_with_auth(url: &str, user: String, pass: Option<String>) -> Self {
+            pub fn new_with_auth(url: &str, auth: Auth) -> Result<Self> {
+                if matches!(auth, Auth::None) {
+                    return Err(Error::MissingUserPassword);
+                }
+                let (user, pass) = auth.get_user_pass()?;
+
                 let transport = jsonrpc::http::minreq_http::Builder::new()
                     .url(url)
                     .expect("jsonrpc v0.18, this function does not error")
-                    .basic_auth(user, pass)
+                    .basic_auth(user.unwrap(), pass)
                     .build();
                 let inner = jsonrpc::client::Client::with_transport(transport);
 
-                Self { inner }
-            }
-
-            /// Creates a client to a bitcoind JSON-RPC server without authentication.
-            ///
-            /// Returns `None` if cookie path is not valid.
-            pub fn new_with_cookie(url: &str, cookie: &Path) -> Option<Self> {
-                cookie.to_str().map(|path| {
-                    let transport = jsonrpc::http::minreq_http::Builder::new()
-                        .url(url)
-                        .expect("jsonrpc v0.18, this function does not error")
-                        .cookie_auth(path)
-                        .build();
-                    let inner = jsonrpc::client::Client::with_transport(transport);
-
-                    Some(Self { inner })
-                })?
+                Ok(Self { inner })
             }
 
             /// Call an RPC `method` with given `args` list.
@@ -91,7 +109,7 @@ macro_rules! define_jsonrpc_minreq_client {
                 let raw = serde_json::value::to_raw_value(args)?;
                 let req = self.inner.build_request(&method, Some(&*raw));
                 if log::log_enabled!(log::Level::Debug) {
-                    log::debug!(target: "bitcoind-json-rpc", "JSON-RPC request: {} {}", method, serde_json::Value::from(args));
+                    log::debug!(target: "bitcoind-json-rpc", "request: {} {}", method, serde_json::Value::from(args));
                 }
 
                 let resp = self.inner.send_request(req).map_err(Error::from);
@@ -230,18 +248,18 @@ fn log_response(method: &str, resp: &Result<jsonrpc::Response>) {
         match resp {
             Err(ref e) =>
                 if log::log_enabled!(Debug) {
-                    log::debug!(target: "bitcoind-json-rpc", "JSON-RPC failed parsing reply of {}: {:?}", method, e);
+                    log::debug!(target: "bitcoind-json-rpc", "error: {}: {:?}", method, e);
                 },
             Ok(ref resp) =>
                 if let Some(ref e) = resp.error {
                     if log::log_enabled!(Debug) {
-                        log::debug!(target: "bitcoind-json-rpc", "JSON-RPC error for {}: {:?}", method, e);
+                        log::debug!(target: "bitcoind-json-rpc", "response error for {}: {:?}", method, e);
                     }
                 } else if log::log_enabled!(Trace) {
                     let def =
                         serde_json::value::to_raw_value(&serde_json::value::Value::Null).unwrap();
                     let result = resp.result.as_ref().unwrap_or(&def);
-                    log::trace!(target: "bitcoind-json-rpc", "JSON-RPC response for {}: {}", method, result);
+                    log::trace!(target: "bitcoind-json-rpc", "response for {}: {}", method, result);
                 },
         }
     }

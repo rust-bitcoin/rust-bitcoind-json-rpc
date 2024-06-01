@@ -4,11 +4,10 @@ macro_rules! impl_test_v22__unloadwallet {
     () => {
         #[test]
         fn unload_wallet() {
-            let client = client();
-            let wallet = random_wallet_name();
-
-            let _ = client.create_wallet(&wallet).expect("createwallet <random-wallet>");
-            let _ = client.unload_wallet(&wallet).expect("unloadwallet <random-wallet>");
+            let bitcoind = bitcoind_no_wallet();
+            let wallet = format!("wallet-{}", rand::random::<u32>()).to_string();
+            bitcoind.client.create_wallet(&wallet).expect("failed to create wallet");
+            let _ = bitcoind.client.unload_wallet(&wallet).expect("unloadwallet <random-wallet>");
         }
     };
 }
@@ -19,11 +18,10 @@ macro_rules! impl_test_v22__getbalances {
     () => {
         #[test]
         fn get_balances() {
-            let (client, wallet_client, address) = setup();
-            let _ = client.generate_to_address(101, &address).expect("generatetoaddress");
-            wait();
-
-            let _ = wallet_client.get_balances().expect("getbalances");
+            let bitcoind = bitcoind_with_default_wallet();
+            let address = bitcoind.client.new_address().expect("failed to get new address");
+            let _ = bitcoind.client.generate_to_address(101, &address).expect("generatetoaddress");
+            let _ = bitcoind.client.get_balances().expect("getbalances");
         }
     };
 }

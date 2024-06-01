@@ -11,8 +11,8 @@ macro_rules! impl_test_v17__getblockchaininfo {
     () => {
         #[test]
         fn get_blockchain_info() {
-            let client = client();
-            let _ = client.get_blockchain_info().expect("getblockchaininfo");
+            let bitcoind = bitcoind_no_wallet();
+            let _ = bitcoind.client.get_blockchain_info().expect("getblockchaininfo");
         }
     };
 }
@@ -22,14 +22,14 @@ macro_rules! impl_test_v17__getblockchaininfo {
 macro_rules! impl_test_v17__getbestblockhash {
     () => {
         fn best_block_hash() -> bitcoin::BlockHash {
-            let client = client();
-            client.best_block_hash().expect("best_block_hash failed")
+            let bitcoind = bitcoind_no_wallet();
+            bitcoind.client.best_block_hash().expect("best_block_hash failed")
         }
 
         #[test]
         fn get_best_block_hash() {
-            let client = client();
-            let _ = client.get_best_block_hash().expect("getbestblockhash");
+            let bitcoind = bitcoind_no_wallet();
+            let _ = bitcoind.client.get_best_block_hash().expect("getbestblockhash");
         }
     };
 }
@@ -40,11 +40,11 @@ macro_rules! impl_test_v17__getblock {
     () => {
         #[test]
         fn get_block() {
-            let client = client();
+            let bitcoind = bitcoind_no_wallet();
             let block_hash = best_block_hash();
 
-            let _ = client.get_block_verbosity_zero(&block_hash).expect("getblock 0");
-            let _ = client.get_block_verbosity_one(&block_hash).expect("getblock 1");
+            let _ = bitcoind.client.get_block_verbosity_zero(&block_hash).expect("getblock 0");
+            let _ = bitcoind.client.get_block_verbosity_one(&block_hash).expect("getblock 1");
             // TODO: getblock 2
             // let json = client.get_block_verbosity_two(&block_hash).expect("getblock 2");
         }

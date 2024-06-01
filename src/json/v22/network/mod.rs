@@ -2,7 +2,7 @@
 
 //! Types for methods found under the wallet section of the API docs.
 //!
-//! The JSON-RPC API for Bitcoin Core v26.0:
+//! The JSON-RPC API for Bitcoin Core v22.1:
 //!
 //!  == Network ==
 //!

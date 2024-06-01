@@ -21,6 +21,8 @@ pub enum Error {
     Returned(String),
     /// The server version did not match what was expected.
     ServerVersion(UnexpectedServerVersionError),
+    /// Missing user/password
+    MissingUserPassword,
 }
 
 impl From<jsonrpc::error::Error> for Error {
@@ -67,6 +69,7 @@ impl fmt::Display for Error {
             UnexpectedStructure => write!(f, "the JSON result had an unexpected structure"),
             Returned(ref s) => write!(f, "the daemon returned an error string: {}", s),
             ServerVersion(ref e) => write!(f, "server version: {}", e),
+            MissingUserPassword => write!(f, "missing user and/or password"),
         }
     }
 }
@@ -84,7 +87,7 @@ impl error::Error for Error {
             Io(ref e) => Some(e),
             InvalidAmount(ref e) => Some(e),
             ServerVersion(ref e) => Some(e),
-            InvalidCookieFile | UnexpectedStructure | Returned(_) => None,
+            InvalidCookieFile | UnexpectedStructure | Returned(_) | MissingUserPassword => None,
         }
     }
 }

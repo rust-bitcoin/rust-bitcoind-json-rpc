@@ -1,14 +1,8 @@
 //! Test the JSON-RPC API against `bitcoind v22.1`.
 
-#![cfg(feature = "client-sync")]
+#![cfg(all(feature = "client-sync", feature = "v22"))]
 
 mod client;
-
-use bitcoind_json_rpc::client_sync::v22::Client;
-// use bitcoind_json_rpc::model;
-
-/// The `bitcoind` RPC port this test client should connect to.
-const RPC_PORT: u16 = 22149;
 
 client::impl_constructors!();
 
@@ -50,7 +44,7 @@ mod wallet {
     crate::impl_test_v17__createwallet!();
     // FIXME: Broken
     // crate::impl_test_v22__unloadwallet!();
-    // crate::impl_test_v22__loadwallet!();
+    crate::impl_test_v17__loadwallet!();
 
     crate::impl_test_v17__getnewaddress!();
     crate::impl_test_v17__getbalance!();
