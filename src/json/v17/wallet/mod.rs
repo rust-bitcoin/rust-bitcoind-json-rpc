@@ -1,69 +1,8 @@
 // SPDX-License-Identifier: CC0-1.0
 
-//! Types for methods found under the wallet section of the API docs.
+//! The JSON-RPC API for Bitcoin Core v0.17.1 - wallet.
 //!
-//! The JSON-RPC API for Bitcoin Core v0.17.1:
-//!
-//!  == Wallet ==
-//!
-//! - [ ] abandontransaction "txid"
-//! - [ ] abortrescan
-//! - [ ] addmultisigaddress nrequired ["key",...] ( "label" "address_type" )
-//! - [ ] backupwallet "destination"
-//! - [ ] bumpfee "txid" ( options )
-//! - [x] createwallet "wallet_name" ( disable_private_keys )
-//! - [ ] dumpprivkey "address"
-//! - [ ] dumpwallet "filename"
-//! - [ ] encryptwallet "passphrase"
-//! - [ ] getaccount (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
-//! - [ ] getaccountaddress (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
-//! - [ ] getaddressbyaccount (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
-//! - [ ] getaddressesbylabel "label"
-//! - [ ] getaddressinfo "address"
-//! - [x] getbalance ( "(dummy)" minconf include_watchonly )
-//! - [x] getnewaddress ( "label" "address_type" )
-//! - [ ] getrawchangeaddress ( "address_type" )
-//! - [ ] getreceivedbyaccount (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
-//! - [ ] getreceivedbyaddress "address" ( minconf )
-//! - [ ] gettransaction "txid" ( include_watchonly )
-//! - [ ] getunconfirmedbalance
-//! - [ ] getwalletinfo
-//! - [ ] importaddress "address" ( "label" rescan p2sh )
-//! - [ ] importmulti "requests" ( "options" )
-//! - [ ] importprivkey "privkey" ( "label" ) ( rescan )
-//! - [ ] importprunedfunds
-//! - [ ] importpubkey "pubkey" ( "label" rescan )
-//! - [ ] importwallet "filename"
-//! - [ ] keypoolrefill ( newsize )
-//! - [ ] listaccounts (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
-//! - [ ] listaddressgroupings
-//! - [ ] listlabels ( "purpose" )
-//! - [ ] listlockunspent
-//! - [ ] listreceivedbyaccount (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
-//! - [ ] listreceivedbyaddress ( minconf include_empty include_watchonly address_filter )
-//! - [ ] listsinceblock ( "blockhash" target_confirmations include_watchonly include_removed )
-//! - [ ] listtransactions (label count skip include_watchonly)
-//! - [ ] listunspent ( minconf maxconf  ["addresses",...] [include_unsafe] [query_options])
-//! - [ ] listwallets
-//! - [x] loadwallet "filename"
-//! - [ ] lockunspent unlock ([{"txid":"txid","vout":n},...])
-//! - [ ] move (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
-//! - [ ] removeprunedfunds "txid"
-//! - [ ] rescanblockchain ("start_height") ("stop_height")
-//! - [ ] sendfrom (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
-//! - [ ] sendmany "" {"address":amount,...} ( minconf "comment" ["address",...] replaceable conf_target "estimate_mode")
-//! - [x] sendtoaddress "address" amount ( "comment" "comment_to" subtractfeefromamount replaceable conf_target "estimate_mode")
-//! - [ ] setaccount (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)
-//! - [ ] sethdseed ( "newkeypool" "seed" )
-//! - [ ] settxfee amount
-//! - [ ] signmessage "address" "message"
-//! - [ ] signrawtransactionwithwallet "hexstring" ( [{"txid":"id","vout":n,"scriptPubKey":"hex","redeemScript":"hex"},...] sighashtype )
-//! - [ ] unloadwallet ( "wallet_name" )
-//! - [ ] walletcreatefundedpsbt [{"txid":"id","vout":n},...] [{"address":amount},{"data":"hex"},...] ( locktime ) ( replaceable ) ( options bip32derivs )
-//! - [ ] walletlock
-//! - [ ] walletpassphrase "passphrase" timeout
-//! - [ ] walletpassphrasechange "oldpassphrase" "newpassphrase"
-//! - [ ] walletprocesspsbt "psbt" ( sign "sighashtype" bip32derivs )
+//! Types for methods found under the `== Wallet ==` section of the API docs.
 
 mod convert;
 

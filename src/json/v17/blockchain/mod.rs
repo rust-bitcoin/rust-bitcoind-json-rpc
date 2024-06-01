@@ -1,35 +1,8 @@
 // SPDX-License-Identifier: CC0-1.0
 
-//! Types for methods found under the blockchain section of the API docs.
+//! The JSON-RPC API for Bitcoin Core v0.17.1 - blockchain.
 //!
-//! The JSON-RPC API for Bitcoin Core v0.17.1
-//!
-//! == Blockchain ==
-//!
-//! - [x] getbestblockhash
-//! - [x] getblock "blockhash" ( verbosity )
-//! - [x] getblockchaininfo
-//! - [ ] getblockcount
-//! - [ ] getblockhash height
-//! - [ ] getblockheader "hash" ( verbose )
-//! - [ ] getblockstats hash_or_height ( stats )
-//! - [ ] getchaintips
-//! - [ ] getchaintxstats ( nblocks blockhash )
-//! - [ ] getdifficulty
-//! - [ ] getmempoolancestors txid (verbose)
-//! - [ ] getmempooldescendants txid (verbose)
-//! - [ ] getmempoolentry txid
-//! - [ ] getmempoolinfo
-//! - [ ] getrawmempool ( verbose )
-//! - [ ] gettxout "txid" n ( include_mempool )
-//! - [ ] gettxoutproof ["txid",...] ( blockhash )
-//! - [ ] gettxoutsetinfo
-//! - [ ] preciousblock "blockhash"
-//! - [ ] pruneblockchain
-//! - [ ] savemempool
-//! - [ ] scantxoutset <action> ( <scanobjects> )
-//! - [ ] verifychain ( checklevel nblocks )
-//! - [ ] verifytxoutproof "proof"
+//! Types for methods found under the `== Blockchain ==` section of the API docs.
 
 mod convert;
 
