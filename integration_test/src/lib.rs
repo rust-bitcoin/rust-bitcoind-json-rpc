@@ -1,6 +1,7 @@
 //! Provides a macro that implements the tests.
 
 pub mod v17;
+pub mod v19;
 pub mod v22;
 
 /// Requires `RPC_PORT` to be in scope.
@@ -13,6 +14,8 @@ pub fn init_logger() { let _ = env_logger::try_init(); }
 /// Returns a handle to a `bitcoind` instance with "default" wallet loaded.
 #[allow(dead_code)] // Not all tests use this function.
 pub fn bitcoind_with_default_wallet() -> BitcoinD {
+    init_logger();
+
     let exe = bitcoind::exe_path().expect("failed to get bitcoind executable");
 
     let conf = bitcoind::Conf::default();

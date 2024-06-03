@@ -1,26 +1,25 @@
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![cfg_attr(feature = "doc", cfg_attr(all(), doc = include_str!("../README.md")))]
 
+#[rustfmt::skip]
 mod client;
 mod versions;
 
-use anyhow::Context;
-use bitcoind_json_rpc_client::client_sync::{self, Auth};
-use log::{debug, error, warn};
 use std::ffi::OsStr;
 use std::net::{Ipv4Addr, SocketAddrV4, TcpListener};
 use std::path::PathBuf;
 use std::process::{Child, Command, ExitStatus, Stdio};
 use std::time::Duration;
 use std::{env, fmt, fs, thread};
+
+use anyhow::Context;
+use bitcoind_json_rpc_client::client_sync::{self, Auth};
+use log::{debug, error, warn};
 use tempfile::TempDir;
+pub use {anyhow, tempfile, which};
 
-use self::versions::VERSION;
 use self::client::Client;
-
-pub use anyhow;
-pub use tempfile;
-pub use which;
+use self::versions::VERSION;
 
 #[derive(Debug)]
 /// Struct representing the bitcoind process with related information
@@ -127,36 +126,48 @@ pub enum Error {
     RpcUserAndPasswordUsed,
     /// Returned when expecting an auto-downloaded executable but `BITCOIND_SKIP_DOWNLOAD` env var is set
     SkipDownload,
+    /// It appears that bitcoind is not reachable.
+    NoBitcoindInstance,
 }
 
 impl fmt::Debug for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use Error::*;
+
         match self {
-            Error::Io(_) => write!(f, "io::Error"),
-            Error::Rpc(_) => write!(f, "bitcoin_rpc::Error"),
-            Error::NoFeature => write!(f, "Called a method requiring a feature to be set, but it's not"),
-            Error::NoEnvVar => write!(f, "Called a method requiring env var `BITCOIND_EXE` to be set, but it's not"),
-            Error::NoBitcoindExecutableFound =>  write!(f, "`bitcoind` executable is required, provide it with one of the following: set env var `BITCOIND_EXE` or use a feature like \"22_1\" or have `bitcoind` executable in the `PATH`"),
-            Error::EarlyExit(e) => write!(f, "The bitcoind process terminated early with exit code {}", e),
-            Error::BothDirsSpecified => write!(f, "tempdir and staticdir cannot be enabled at same time in configuration options"),
-            Error::RpcUserAndPasswordUsed => write!(f, "`-rpcuser` and `-rpcpassword` cannot be used, it will be deprecated soon and it's recommended to use `-rpcauth` instead which works alongside with the default cookie authentication"),
-            Error::SkipDownload => write!(f, "expecting an auto-downloaded executable but `BITCOIND_SKIP_DOWNLOAD` env var is set"),
+            Io(_) => write!(f, "io::Error"), // FIXME: Use bitcoin-internals.
+            Rpc(_) => write!(f, "bitcoin_rpc::Error"),
+            NoFeature => write!(f, "Called a method requiring a feature to be set, but it's not"),
+            NoEnvVar => write!(f, "Called a method requiring env var `BITCOIND_EXE` to be set, but it's not"),
+            NoBitcoindExecutableFound =>  write!(f, "`bitcoind` executable is required, provide it with one of the following: set env var `BITCOIND_EXE` or use a feature like \"22_1\" or have `bitcoind` executable in the `PATH`"),
+            EarlyExit(e) => write!(f, "The bitcoind process terminated early with exit code {}", e),
+            BothDirsSpecified => write!(f, "tempdir and staticdir cannot be enabled at same time in configuration options"),
+            RpcUserAndPasswordUsed => write!(f, "`-rpcuser` and `-rpcpassword` cannot be used, it will be deprecated soon and it's recommended to use `-rpcauth` instead which works alongside with the default cookie authentication"),
+            SkipDownload => write!(f, "expecting an auto-downloaded executable but `BITCOIND_SKIP_DOWNLOAD` env var is set"),
+            NoBitcoindInstance => write!(f, "it appears that bitcoind is not reachable"),
         }
     }
 }
 
 impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "{:?}", self) }
 }
 
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-            Error::Io(e) => Some(e),
-            Error::Rpc(e) => Some(e),
-            _ => None,
+        use Error::*;
+
+        match *self {
+            Error::Io(ref e) => Some(e),
+            Error::Rpc(ref e) => Some(e),
+            NoFeature
+            | NoEnvVar
+            | NoBitcoindExecutableFound
+            | EarlyExit(_)
+            | BothDirsSpecified
+            | RpcUserAndPasswordUsed
+            | SkipDownload
+            | NoBitcoindInstance => None,
         }
     }
 }
@@ -260,10 +271,8 @@ impl BitcoinD {
 
     /// Launch the bitcoind process from the given `exe` executable with given [Conf] param and create/load the "default" wallet.
     pub fn with_conf<S: AsRef<OsStr>>(exe: S, conf: &Conf) -> anyhow::Result<BitcoinD> {
-        let tmpdir = conf
-            .tmpdir
-            .clone()
-            .or_else(|| env::var("TEMPDIR_ROOT").map(PathBuf::from).ok());
+        let tmpdir =
+            conf.tmpdir.clone().or_else(|| env::var("TEMPDIR_ROOT").map(PathBuf::from).ok());
         let work_dir = match (&tmpdir, &conf.staticdir) {
             (Some(_), Some(_)) => return Err(Error::BothDirsSpecified.into()),
             (Some(tmpdir), None) => DataDir::Temporary(TempDir::new_in(tmpdir)?),
@@ -326,11 +335,7 @@ impl BitcoinD {
             false => (vec![], None, None),
         };
 
-        let stdout = if conf.view_stdout {
-            Stdio::inherit()
-        } else {
-            Stdio::null()
-        };
+        let stdout = if conf.view_stdout { Stdio::inherit() } else { Stdio::null() };
 
         let datadir_arg = format!("-datadir={}", work_dir_path.display());
         let rpc_arg = format!("-rpcport={}", rpc_port);
@@ -356,50 +361,54 @@ impl BitcoinD {
 
         debug!("cookie file: {}", cookie_file.display());
 
+        if let Some(status) = process.try_wait()? {
+            if conf.attempts > 0 {
+                warn!("early exit with: {:?}. Trying to launch again ({} attempts remaining), maybe some other process used our available port", status, conf.attempts);
+                let mut conf = conf.clone();
+                conf.attempts -= 1;
+                return Self::with_conf(exe, &conf)
+                    .with_context(|| format!("Remaining attempts {}", conf.attempts));
+            } else {
+                error!("early exit with: {:?}", status);
+                return Err(Error::EarlyExit(status).into());
+            }
+        }
+        thread::sleep(Duration::from_millis(1000));
+        assert!(process.stderr.is_none());
+
         let mut i = 0;
+        let auth = Auth::CookieFile(cookie_file.clone());
+        let client_base =
+            Client::new_with_auth(&rpc_url, auth.clone()).expect("failed to create client");
 
         let client = loop {
-            if let Some(status) = process.try_wait()? {
-                if conf.attempts > 0 {
-                    warn!("early exit with: {:?}. Trying to launch again ({} attempts remaining), maybe some other process used our available port", status, conf.attempts);
-                    let mut conf = conf.clone();
-                    conf.attempts -= 1;
-                    return Self::with_conf(exe, &conf)
-                        .with_context(|| format!("Remaining attempts {}", conf.attempts));
-                } else {
-                    error!("early exit with: {:?}", status);
-                    return Err(Error::EarlyExit(status).into());
-                }
-            }
-            thread::sleep(Duration::from_millis(100));
-            assert!(process.stderr.is_none());
+            // Just use serde value because changes to the GetBlockchainInfo type make debugging hard.
+            let client_result: Result<serde_json::Value, _> =
+                client_base.call("getblockchaininfo", &[]);
 
-            let auth = Auth::CookieFile(cookie_file.clone());
-            let client_result = Client::new_with_auth(&rpc_url, auth.clone());
-
-            if let Ok(client_base) = client_result {
-                if client_base.get_blockchain_info().is_ok() {
-                    let url = match &conf.wallet {
-                        Some(wallet) => {
-                            if client_base.create_wallet(&wallet).is_err() {
-                                client_base.load_wallet(&wallet)?;
-                            }
-                            format!("{}/wallet/{}", rpc_url, wallet)
-                        },
-                        None => rpc_url,
-                    };
-
-                    break Client::new_with_auth(&url, auth)?;
-                }
+            if let Ok(_) = client_result {
+                let url = match &conf.wallet {
+                    Some(wallet) => {
+                        debug!("trying to create/load wallet: {}", wallet);
+                        if let Err(e) = client_base.create_wallet(&wallet) {
+                            debug!("e: {:?}", e);
+                            client_base.load_wallet(&wallet)?;
+                        }
+                        format!("{}/wallet/{}", rpc_url, wallet)
+                    }
+                    None => rpc_url,
+                };
+                debug!("creating client with url: {}", url);
+                break Client::new_with_auth(&url, auth)?;
             }
 
-            debug!(
-                "bitcoin client for process {} not ready ({})",
-                process.id(),
-                i
-            );
+            thread::sleep(Duration::from_millis(1000));
 
             i += 1;
+            if i > 10 {
+                error!("failed to get a response from bitcoind");
+                return Err(Error::NoBitcoindInstance.into());
+            }
         };
 
         Ok(BitcoinD {
@@ -417,25 +426,17 @@ impl BitcoinD {
     }
 
     /// Returns the rpc URL including the schema eg. http://127.0.0.1:44842
-    pub fn rpc_url(&self) -> String {
-        format!("http://{}", self.params.rpc_socket)
-    }
+    pub fn rpc_url(&self) -> String { format!("http://{}", self.params.rpc_socket) }
 
     #[cfg(any(feature = "0_19_1", not(feature = "download")))]
     /// Returns the rpc URL including the schema and the given `wallet_name`
     /// eg. http://127.0.0.1:44842/wallet/my_wallet
     pub fn rpc_url_with_wallet<T: AsRef<str>>(&self, wallet_name: T) -> String {
-        format!(
-            "http://{}/wallet/{}",
-            self.params.rpc_socket,
-            wallet_name.as_ref()
-        )
+        format!("http://{}/wallet/{}", self.params.rpc_socket, wallet_name.as_ref())
     }
 
     /// Return the current workdir path of the running node
-    pub fn workdir(&self) -> PathBuf {
-        self.work_dir.path()
-    }
+    pub fn workdir(&self) -> PathBuf { self.work_dir.path() }
 
     /// Returns the [P2P] enum to connect to this node p2p port
     pub fn p2p_connect(&self, listen: bool) -> Option<P2P> {
@@ -452,9 +453,7 @@ impl BitcoinD {
     /// Create a new wallet in the running node, and return an RPC client connected to the just
     /// created wallet
     pub fn create_wallet<T: AsRef<str>>(&self, wallet: T) -> anyhow::Result<Client> {
-        let _ = self
-            .client
-            .create_wallet(wallet.as_ref())?;
+        let _ = self.client.create_wallet(wallet.as_ref())?;
         Ok(Client::new_with_auth(
             &self.rpc_url_with_wallet(wallet),
             Auth::CookieFile(self.params.cookie_file.clone()),
@@ -465,9 +464,7 @@ impl BitcoinD {
 #[cfg(feature = "download")]
 impl BitcoinD {
     /// create BitcoinD struct with the downloaded executable.
-    pub fn from_downloaded() -> anyhow::Result<BitcoinD> {
-        BitcoinD::new(downloaded_exe_path()?)
-    }
+    pub fn from_downloaded() -> anyhow::Result<BitcoinD> { BitcoinD::new(downloaded_exe_path()?) }
 
     /// create BitcoinD struct with the downloaded executable and given Conf.
     pub fn from_downloaded_with_conf(conf: &Conf) -> anyhow::Result<BitcoinD> {
@@ -494,22 +491,16 @@ pub fn get_available_port() -> anyhow::Result<u16> {
 }
 
 impl From<std::io::Error> for Error {
-    fn from(e: std::io::Error) -> Self {
-        Error::Io(e)
-    }
+    fn from(e: std::io::Error) -> Self { Error::Io(e) }
 }
 
 impl From<client_sync::Error> for Error {
-    fn from(e: client_sync::Error) -> Self {
-        Error::Rpc(e)
-    }
+    fn from(e: client_sync::Error) -> Self { Error::Rpc(e) }
 }
 
 /// Provide the bitcoind executable path if a version feature has been specified
 #[cfg(not(feature = "download"))]
-pub fn downloaded_exe_path() -> anyhow::Result<String> {
-    Err(Error::NoFeature.into())
-}
+pub fn downloaded_exe_path() -> anyhow::Result<String> { Err(Error::NoFeature.into()) }
 
 /// Provide the bitcoind executable path if a version feature has been specified
 #[cfg(feature = "download")]
@@ -565,11 +556,12 @@ pub fn validate_args(args: Vec<&str>) -> anyhow::Result<Vec<&str>> {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use crate::exe_path;
-    use crate::{get_available_port, BitcoinD, Conf, LOCAL_IP, P2P};
     use std::net::SocketAddrV4;
+
     use tempfile::TempDir;
+
+    use super::*;
+    use crate::{exe_path, get_available_port, BitcoinD, Conf, LOCAL_IP, P2P};
 
     #[test]
     fn test_local_ip() {
@@ -593,10 +585,7 @@ mod test {
         let bitcoind = BitcoinD::new(exe).unwrap();
         let info = bitcoind.client.get_blockchain_info().unwrap();
         assert_eq!(0, info.blocks);
-        let address = bitcoind
-            .client
-            .new_address()
-            .unwrap();
+        let address = bitcoind.client.new_address().unwrap();
         let _ = bitcoind.client.generate_to_address(1, &address).unwrap();
         let info = bitcoind.client.get_blockchain_info().unwrap();
         assert_eq!(1, info.blocks);
@@ -647,14 +636,8 @@ mod test {
         // Generate 101 blocks
         // Wallet balance should be 50
         let bitcoind = BitcoinD::with_conf(exe_path().unwrap(), &conf).unwrap();
-        let core_addrs = bitcoind
-            .client
-            .new_address()
-            .unwrap();
-        bitcoind
-            .client
-            .generate_to_address(101, &core_addrs)
-            .unwrap();
+        let core_addrs = bitcoind.client.new_address().unwrap();
+        bitcoind.client.generate_to_address(101, &core_addrs).unwrap();
         let wallet_balance_1 = bitcoind.client.get_balance().unwrap();
         let best_block_1 = bitcoind.client.get_best_block_hash().unwrap();
 
@@ -705,7 +688,9 @@ mod test {
     #[test]
     fn test_multi_wallet() {
         use std::convert::TryInto;
+
         use bitcoind_json_rpc_client::bitcoin::Amount;
+
         use crate::client::json;
 
         let exe = init();
@@ -714,14 +699,8 @@ mod test {
         let alice_address = alice.new_address().unwrap();
         let bob = bitcoind.create_wallet("bob").unwrap();
         let bob_address = bob.new_address().unwrap();
-        bitcoind
-            .client
-            .generate_to_address(1, &alice_address)
-            .unwrap();
-        bitcoind
-            .client
-            .generate_to_address(101, &bob_address)
-            .unwrap();
+        bitcoind.client.generate_to_address(1, &alice_address).unwrap();
+        bitcoind.client.generate_to_address(101, &bob_address).unwrap();
 
         let balances = alice.get_balances().unwrap();
         let alice_balances: json::GetBalances = balances.try_into().unwrap();
@@ -741,19 +720,16 @@ mod test {
             Amount::from_btc(5000.0).unwrap(),
             Amount::from_btc(bob_balances.mine.immature).unwrap()
         );
-        let _txid = alice
-            .send_to_address(
-                &bob_address,
-                Amount::from_btc(1.0).unwrap(),
-            )
-            .unwrap();
+        let _txid = alice.send_to_address(&bob_address, Amount::from_btc(1.0).unwrap()).unwrap();
 
         let balances = alice.get_balances().unwrap();
         let alice_balances: json::GetBalances = balances.try_into().unwrap();
 
         assert!(
-            Amount::from_btc(alice_balances.mine.trusted).unwrap() < Amount::from_btc(49.0).unwrap()
-                && Amount::from_btc(alice_balances.mine.trusted).unwrap() > Amount::from_btc(48.9).unwrap()
+            Amount::from_btc(alice_balances.mine.trusted).unwrap()
+                < Amount::from_btc(49.0).unwrap()
+                && Amount::from_btc(alice_balances.mine.trusted).unwrap()
+                    > Amount::from_btc(48.9).unwrap()
         );
 
         // bob wallet may not be immediately updated
@@ -773,10 +749,7 @@ mod test {
             Amount::from_btc(1.0).unwrap(),
             Amount::from_btc(bob_balances.mine.untrusted_pending).unwrap()
         );
-        assert!(
-            bitcoind.create_wallet("bob").is_err(),
-            "wallet already exist"
-        );
+        assert!(bitcoind.create_wallet("bob").is_err(), "wallet already exist");
     }
 
     #[test]
@@ -806,7 +779,9 @@ mod test {
         let auth = Auth::UserPass("bitcoind".to_string(), "bitcoind".to_string());
         let client = Client::new_with_auth(
             format!("{}/wallet/default", bitcoind.rpc_url().as_str()).as_str(),
-            auth).unwrap();
+            auth,
+        )
+        .unwrap();
         let info = client.get_blockchain_info().unwrap();
         assert_eq!(0, info.blocks);
 
@@ -824,11 +799,7 @@ mod test {
         let user: &str = "bitcoind_user";
         let password: &str = "bitcoind_password";
 
-        std::fs::write(
-            &bitcoind.params.cookie_file,
-            format!("{}:{}", user, password),
-        )
-        .unwrap();
+        std::fs::write(&bitcoind.params.cookie_file, format!("{}:{}", user, password)).unwrap();
 
         let result_values = bitcoind.params.get_cookie_values().unwrap().unwrap();
 

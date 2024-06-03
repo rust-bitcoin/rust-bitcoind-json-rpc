@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: CC0-1.0
 
-//! The JSON-RPC API for Bitcoin Core v22.1 - blockchain.
+//! The JSON-RPC API for Bitcoin Core v0.19.1 - blockchain.
 //!
 //! Types for methods found under the `== Blockchain ==` section of the API docs.
 

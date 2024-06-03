@@ -32,25 +32,30 @@ zip = { version = "0.6", optional = true }
 anyhow = "1.0.66"
 
 [features]
-"default" = ["0_17_1"] # FIXME: Default to latest after we get 26_0 worknig (or better still 26_1).
+"default" = []
 
 # download is not supposed to be used directly only through selecting one of the version feature
 "download" = ["bitcoin_hashes", "flate2", "tar", "minreq", "zip"]
 
+# We support all minor releases (but only the latest patch release).
 "26_0" = ["download", "25_2"]
 "25_2" = ["download", "25_1"]
 "25_1" = ["download", "25_0"]
 "25_0" = ["download", "24_2"]
-"24_2" = ["download", "24_0_1"]
+"24_2" = ["download", "24_1"]
+"24_1" = ["download", "24_0_1"]
 "24_0_1" = ["download", "23_2"]
 "23_2" = ["download", "23_1"]
-"23_1" = ["download", "22_1"]
-"22_1" = ["download", "0_21_2"]
+"23_1" = ["download", "23_0"]
+"23_0" = ["download", "22_1"]
+"22_1" = ["download", "22_0"]
+"22_0" = ["download", "0_21_2"]
+# We only support the latest minor version for these.
 "0_21_2" = ["download", "0_20_2"]
 "0_20_2" = ["download", "0_19_1"]
 "0_19_1" = ["download", "0_18_1"]
-"0_18_1" = ["download", "0_17_1"]
-"0_17_1" = ["download"]
+"0_18_1" = ["download", "0_17_2"]
+"0_17_2" = ["download"]
 
 "doc" = [] # used only for documentation building
 

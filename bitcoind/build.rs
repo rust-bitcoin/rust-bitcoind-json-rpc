@@ -5,28 +5,24 @@ mod download {}
 fn main() {}
 
 #[cfg(all(feature = "download", not(feature = "doc")))]
-fn main() {
-    download::start().unwrap();
-}
+fn main() { download::start().unwrap(); }
 
 #[cfg(all(feature = "download", not(feature = "doc")))]
 mod download {
 
-    use anyhow::Context;
-    use bitcoin_hashes::{sha256, Hash};
-    use flate2::read::GzDecoder;
     use std::fs::File;
     use std::io::{self, BufRead, BufReader, Cursor, Read};
     use std::path::Path;
     use std::str::FromStr;
+
+    use anyhow::Context;
+    use bitcoin_hashes::{sha256, Hash};
+    use flate2::read::GzDecoder;
     use tar::Archive;
 
     include!("src/versions.rs");
 
-    #[cfg(all(
-        target_os = "macos",
-        any(target_arch = "x86_64", target_arch = "aarch64"),
-    ))]
+    #[cfg(all(target_os = "macos", any(target_arch = "x86_64", target_arch = "aarch64"),))]
     fn download_filename() -> String {
         if cfg!(not(feature = "23_1")) {
             format!("bitcoin-{}-osx64.tar.gz", &VERSION)
@@ -36,23 +32,17 @@ mod download {
     }
 
     #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-    fn download_filename() -> String {
-        format!("bitcoin-{}-x86_64-linux-gnu.tar.gz", &VERSION)
-    }
+    fn download_filename() -> String { format!("bitcoin-{}-x86_64-linux-gnu.tar.gz", &VERSION) }
 
     #[cfg(all(target_os = "linux", target_arch = "aarch64"))]
-    fn download_filename() -> String {
-        format!("bitcoin-{}-aarch64-linux-gnu.tar.gz", &VERSION)
-    }
+    fn download_filename() -> String { format!("bitcoin-{}-aarch64-linux-gnu.tar.gz", &VERSION) }
 
     #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
-    fn download_filename() -> String {
-        format!("bitcoin-{}-win64.zip", &VERSION)
-    }
+    fn download_filename() -> String { format!("bitcoin-{}-win64.zip", &VERSION) }
 
     fn get_expected_sha256(filename: &str) -> anyhow::Result<sha256::Hash> {
         let sha256sums_filename = format!("sha256/bitcoin-core-{}-SHA256SUMS", &VERSION);
-        #[cfg(not(feature = "22_1"))]
+        #[cfg(not(feature = "22_0"))]
         let sha256sums_filename = format!("{}.asc", sha256sums_filename);
         let file = File::open(&sha256sums_filename)
             .with_context(|| format!("cannot find {:?}", sha256sums_filename))?;
@@ -75,6 +65,7 @@ mod download {
             return Ok(());
         }
         let download_filename = download_filename();
+        println!("download_filename: {}", download_filename);
         let expected_hash = get_expected_sha256(&download_filename)?;
         let out_dir = std::env::var_os("OUT_DIR").unwrap();
 
@@ -83,16 +74,11 @@ mod download {
             std::fs::create_dir(&bitcoin_exe_home)
                 .with_context(|| format!("cannot create dir {:?}", bitcoin_exe_home))?;
         }
-        let existing_filename = bitcoin_exe_home
-            .join(format!("bitcoin-{}", VERSION))
-            .join("bin")
-            .join("bitcoind");
+        let existing_filename =
+            bitcoin_exe_home.join(format!("bitcoin-{}", VERSION)).join("bin").join("bitcoind");
 
         if !existing_filename.exists() {
-            println!(
-                "filename:{} version:{} hash:{}",
-                download_filename, VERSION, expected_hash
-            );
+            println!("filename:{} version:{} hash:{}", download_filename, VERSION, expected_hash);
 
             let (file_or_url, tarball_bytes) = match std::env::var("BITCOIND_TARBALL_FILE") {
                 Err(_) => {

@@ -40,12 +40,10 @@ mod wallet {
     use super::*;
 
     impl_test_v17__createwallet!();
-    // FIXME: Broken
-    // impl_test_v22__unloadwallet!();
     impl_test_v17__loadwallet!();
 
     impl_test_v17__getnewaddress!();
     impl_test_v17__getbalance!();
-    impl_test_v22__getbalances!();
+    impl_test_v19__getbalances!();
     impl_test_v17__sendtoaddress!();
 }

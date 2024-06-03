@@ -5,7 +5,14 @@
 mod error;
 pub mod v17;
 pub mod v18;
+pub mod v19;
+pub mod v20;
+pub mod v21;
 pub mod v22;
+pub mod v23;
+pub mod v24;
+pub mod v25;
+pub mod v26;
 
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -45,16 +52,13 @@ impl Auth {
 }
 
 /// Defines a `jsonrpc::Client` using `minreq`.
-///
-/// Expects a const `EXPECTED_SERVER_VERSION` to be defined (form is same as returned in the
-/// `getnetworkinfo.version` field e.g,. 260000).
 #[macro_export]
 macro_rules! define_jsonrpc_minreq_client {
-    () => {
+    ($version:literal) => {
         use std::fmt;
 
         use $crate::client_sync::{log_response, Auth, Result};
-        use $crate::client_sync::error::{Error, UnexpectedServerVersionError};
+        use $crate::client_sync::error::Error;
 
         /// Client implements a JSON-RPC client for the Bitcoin Core daemon or compatible APIs.
         pub struct Client {
@@ -65,8 +69,7 @@ macro_rules! define_jsonrpc_minreq_client {
             fn fmt(&self, f: &mut fmt::Formatter) -> core::fmt::Result {
                 write!(
                     f,
-                    "bitcoind-json-rpc::client_sync::{}::Client({:?})",
-                    EXPECTED_SERVER_VERSION, self.inner
+                    "bitcoind-json-rpc::client_sync::{}::Client({:?})", $version, self.inner
                 )
             }
         }
@@ -120,29 +123,28 @@ macro_rules! define_jsonrpc_minreq_client {
     }
 }
 
-/// Implement a bunch of helper functions.
+/// Implements the `check_expected_server_version()` on `Client`.
 ///
-/// Requires the following functions to be implemented:
+/// Requires `Client` to be in scope and implement `server_version()`.
+/// See and/or use `impl_client_v17__getnetworkinfo`.
 ///
-/// - get_blockchain_info
-/// - get_block_verbosity_zero
-/// - get_new_address
+/// # Parameters
+///
+/// - `$expected_versions`: An vector of expected server versions e.g., `[230100, 230200]`.
 #[macro_export]
-macro_rules! impl_client_helpers {
-    () => {
+macro_rules! impl_client_check_expected_server_version {
+    ($expected_versions:expr) => {
         impl Client {
-            /// Gets the blockhash of the current chain tip.
-            pub fn best_block_hash(&self) -> Result<bitcoin::BlockHash> {
-                let json = self.get_blockchain_info()?;
-                let concrete: $crate::json::model::GetBlockchainInfo = json.try_into().unwrap();
-                Ok(concrete.best_block_hash)
-            }
-
-            /// Gets a block by blockhash.
-            pub fn get_block(&self, hash: &bitcoin::BlockHash) -> Result<bitcoin::Block> {
-                let json = self.get_block_verbosity_zero(hash)?;
-                let concrete: $crate::json::model::GetBlockVerbosityZero = json.try_into()?;
-                Ok(concrete.0)
+            /// Checks that the JSON-RPC endpoint is for a `bitcoind` instance with the expected version.
+            pub fn check_expected_server_version(&self) -> Result<()> {
+                let server_version = self.server_version()?;
+                if !$expected_versions.contains(&server_version) {
+                    return Err($crate::client_sync::error::UnexpectedServerVersionError {
+                        got: server_version,
+                        expected: $expected_versions.to_vec(),
+                    })?;
+                }
+                Ok(())
             }
         }
     };

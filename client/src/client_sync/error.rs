@@ -93,17 +93,22 @@ impl error::Error for Error {
 }
 
 /// Error returned when RPC client expects a different version than bitcoind reports.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UnexpectedServerVersionError {
     /// Version from server.
     pub got: usize,
     /// Expected server version.
-    pub expected: usize,
+    pub expected: Vec<usize>,
 }
 
 impl fmt::Display for UnexpectedServerVersionError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "unexpected bitcoind version, got: {} expected: {}", self.got, self.expected)
+        let mut expected = String::new();
+        for version in &self.expected {
+            let v = format!(" {} ", version);
+            expected.push_str(&v);
+        }
+        write!(f, "unexpected bitcoind version, got: {} expected one of: {}", self.got, expected)
     }
 }
 

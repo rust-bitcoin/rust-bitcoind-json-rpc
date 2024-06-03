@@ -9,8 +9,7 @@ use std::str::FromStr;
 use bitcoin::amount::ParseAmountError;
 use bitcoin::{address, hex, Address, Amount, Txid};
 
-use crate::v17;
-use crate::model;
+use crate::{model, v17};
 
 impl From<v17::CreateWallet> for model::CreateWallet {
     fn from(json: v17::CreateWallet) -> Self {

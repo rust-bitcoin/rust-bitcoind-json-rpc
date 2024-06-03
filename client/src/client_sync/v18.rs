@@ -10,13 +10,7 @@ use bitcoin::{Amount, Block, BlockHash, Txid};
 use crate::client_sync::{handle_defaults, into_json};
 use crate::json::v18::*;
 
-/// Support Bitcoin Core `v0.18.1`.
-const EXPECTED_SERVER_VERSION: usize = 180100;
-
-crate::define_jsonrpc_minreq_client!();
-
-// == Network ==
-crate::impl_client_v17__getnetworkinfo!();
+crate::define_jsonrpc_minreq_client!("v18");
 
 // == Blockchain ==
 crate::impl_client_v17__getblockchaininfo!();
@@ -29,6 +23,10 @@ crate::impl_client_v17__stop!();
 
 // == Generating ==
 crate::impl_client_v17__generatetoaddress!();
+
+// == Network ==
+crate::impl_client_v17__getnetworkinfo!();
+crate::impl_client_check_expected_server_version!({ [180100] });
 
 // == Wallet ==
 crate::impl_client_v17__createwallet!();

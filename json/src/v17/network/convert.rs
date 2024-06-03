@@ -10,8 +10,7 @@ use bitcoin::amount::ParseAmountError;
 use bitcoin::{Amount, FeeRate};
 use internals::write_err;
 
-use crate::v17;
-use crate::model;
+use crate::{model, v17};
 
 // TODO: Upstream to `rust-bitcoin`.
 /// Constructs a `bitcoin::FeeRate` from bitcoin per 1000 bytes.

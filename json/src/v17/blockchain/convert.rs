@@ -14,8 +14,7 @@ use bitcoin::{
 };
 use internals::write_err;
 
-use crate::v17;
-use crate::model;
+use crate::{model, v17};
 
 impl TryFrom<v17::GetBlockchainInfo> for model::GetBlockchainInfo {
     type Error = ();
