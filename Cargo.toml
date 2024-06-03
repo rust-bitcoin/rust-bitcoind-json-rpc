@@ -1,5 +1,5 @@
 [workspace]
-members = ["client", "json"]
+members = ["client", "json", "bitcoind"]
 exclude = ["integration_test"]
 resolver = "2"
 
@@ -10,5 +10,4 @@ path = "client"
 path = "json"
 
 [patch.crates-io.bitcoind]
-git = "https://github.com/tcharding/bitcoind"
-branch = "bitcoind-json-rpc"
+path = "bitcoind"

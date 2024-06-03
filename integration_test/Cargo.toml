@@ -7,10 +7,15 @@ description = "Integration tests for bitcoind-json-rpc-client/types"
 edition = "2021"
 
 [features]
+"default" = ["0_17_1"] # FIXME: Default to latest after we get 26_0 worknig (or better still 26_1).
+
 "26_0" =["v26", "bitcoind/26_0"]
+"25_2" = ["v25", "bitcoind/25_2"]
 "25_1" = ["v25", "bitcoind/25_1"]
 "25_0" = ["v25", "bitcoind/25_0"]
+"24_2" = ["v24", "bitcoind/24_2"]
 "24_0_1" = ["v24", "bitcoind/24_0_1"]
+"23_2" = ["v23", "bitcoind/23_2"]
 "23_1" = ["v23", "bitcoind/23_1"]
 "22_1" = ["v22", "bitcoind/22_1"]
 "0_21_2" = ["v21", "bitcoind/0_21_2"]
@@ -33,7 +38,7 @@ edition = "2021"
 [dependencies]
 bitcoin = { version = "0.32.0", default-features = false, features = ["std", "serde"] }
 client = { package = "bitcoind-json-rpc-client", version = "0.1.0", default-features = false, features = ["client-sync"] }
-bitcoind = { version = "0.36.0", default-features = false, features = [] }
+bitcoind = { version = "0.37.0", default-features = false, features = [] }
 rand = "0.8.5"
 env_logger = "0.9.0"
 
@@ -46,4 +51,4 @@ path = "../client"
 path = "../json"
 
 [patch.crates-io.bitcoind]
-path = "/home/tobin/build/github.com/tcharding/bitcoind/bitcoind-json-rpc"
+path = "../bitcoind"
