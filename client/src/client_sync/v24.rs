@@ -26,7 +26,7 @@ crate::impl_client_v17__generatetoaddress!();
 
 // == Network ==
 crate::impl_client_v17__getnetworkinfo!();
-crate::impl_client_check_expected_server_version!({ [240100, 240100, 240200] });
+crate::impl_client_check_expected_server_version!({ [240001, 240100, 240200] });
 
 // == Wallet ==
 crate::impl_client_v17__createwallet!();
