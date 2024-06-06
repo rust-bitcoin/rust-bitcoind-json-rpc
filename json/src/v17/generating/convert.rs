@@ -6,8 +6,7 @@
 
 use bitcoin::{hex, BlockHash};
 
-use crate::v17;
-use crate::model;
+use crate::{model, v17};
 
 impl TryFrom<v17::GenerateToAddress> for model::GenerateToAddress {
     type Error = hex::HexToArrayError;

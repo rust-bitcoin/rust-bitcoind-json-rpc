@@ -73,7 +73,6 @@ macro_rules! impl_test_v17__sendtoaddress {
             let _ = bitcoind.client.generate_to_address(101, &address).expect("generatetoaddress");
 
             let balance = bitcoind.client.get_balance().expect("getbalance");
-            dbg!(balance);
 
             let _ = bitcoind
                 .client

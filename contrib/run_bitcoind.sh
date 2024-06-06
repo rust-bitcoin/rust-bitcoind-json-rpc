@@ -23,10 +23,16 @@ COMMAND
    - stop                     Kill all bitcoind nodes using 'pkill bitcoind'.
 
 KNOWN_VERSION
-   - v17                Bitcoin Core v0.17.1
-   - v18                Bitcoin Core v0.18.1
+   - v26                Bitcoin Core v26.0
+   - v25                Bitcoin Core v25.2
+   - v24                Bitcoin Core v24.2
+   - v23                Bitcoin Core v23.2
    - v22                Bitcoin Core v22.1
-
+   - v21                Bitcoin Core v0.21.2
+   - v20                Bitcoin Core v0.20.2
+   - v19                Bitcoin Core v0.19.1
+   - v18                Bitcoin Core v0.18.1
+   - v17                Bitcoin Core v0.17.2
 EOF
 }
 
@@ -42,9 +48,16 @@ main() {
 
     case $cmd in
         all)
-            start "v17"
-            start "v18"
-            start "v22"
+            start "v26"         # 26.0
+            start "v25"         # 25.2
+            start "v24"         # 24.2
+            start "v23"         # 23.2
+            start "v22"         # 22.1
+            start "v21"         # 0.21.2
+            start "v20"         # 0.20.2
+            start "v19"         # 0.19.1
+            start "v18"         # 0.18.1
+            start "v17"         # 0.17.2
             ;;
 
         start)
@@ -53,7 +66,7 @@ main() {
 
         stop)
             pkill bitcoind
-            rm -rf "/tmp/rust-bitcoind-json-rpc-0.17.1/2/regtest/wallets" > /dev/null
+            rm -rf "/tmp/rust-bitcoind-json-rpc-0.17.2/2/regtest/wallets" > /dev/null
             rm -rf "/tmp/rust-bitcoind-json-rpc-0.18.1/2/regtest/wallets" > /dev/null
             rm -rf "/tmp/rust-bitcoind-json-rpc-22.1/2/regtest/wallets" > /dev/null
             ;;
@@ -69,28 +82,63 @@ start() {
     local version="$1"
 
     case $version in
-        v17)
-            local version_number="0.17.1"
-            local version_id="171"
-            run_bitcoind "$version" "$version_number" "$version_id"
+        v26)
+            local version_number="26.0"
+            local version_id="260"
             ;;
 
-        v18)
-            local version_number="0.18.1"
-            local version_id="181"
-            run_bitcoind "$version" "$version_number" "$version_id"
+        v25)
+            local version_number="25.2"
+            local version_id="252"
+            ;;
+
+        v24)
+            local version_number="24.2"
+            local version_id="242"
+            ;;
+
+        v23)
+            local version_number="23.2"
+            local version_id="232"
             ;;
 
         v22)
             local version_number="22.1"
             local version_id="221"
-            run_bitcoind "$version" "$version_number" "$version_id"
             ;;
+
+        v21)
+            local version_number="0.21.2"
+            local version_id="212"
+            ;;
+
+        v20)
+            local version_number="0.20.2"
+            local version_id="202"
+            ;;
+
+        v19)
+            local version_number="0.19.1"
+            local version_id="191"
+            ;;
+
+        v18)
+            local version_number="0.18.1"
+            local version_id="181"
+            ;;
+
+        v17)
+            local version_number="0.17.2"
+            local version_id="172"
+            ;;
+
         *)
             usage
             err "Error: unknown version $version"
             ;;
     esac
+
+    run_bitcoind "$version" "$version_number" "$version_id"
 }
 
 run_bitcoind() {

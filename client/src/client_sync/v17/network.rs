@@ -14,18 +14,6 @@
 macro_rules! impl_client_v17__getnetworkinfo {
     () => {
         impl Client {
-            /// Checks that the JSON-RPC endpoint is for a `bitcoind` instance with the expected version.
-            pub fn check_expected_server_version(&self) -> Result<()> {
-                let server_version = self.server_version()?;
-                if server_version != EXPECTED_SERVER_VERSION {
-                    return Err(UnexpectedServerVersionError {
-                        got: server_version,
-                        expected: EXPECTED_SERVER_VERSION,
-                    })?;
-                }
-                Ok(())
-            }
-
             /// Returns the server version field of `GetNetworkInfo`.
             pub fn server_version(&self) -> Result<usize> {
                 let info = self.get_network_info()?;

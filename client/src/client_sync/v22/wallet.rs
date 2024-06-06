@@ -32,13 +32,3 @@ macro_rules! impl_client_v22__loadwallet {
         }
     };
 }
-
-/// Implements bitcoind JSON-RPC API method `getbalances`
-#[macro_export]
-macro_rules! impl_client_v22__getbalances {
-    () => {
-        impl Client {
-            pub fn get_balances(&self) -> Result<GetBalances> { self.call("getbalances", &[]) }
-        }
-    };
-}
