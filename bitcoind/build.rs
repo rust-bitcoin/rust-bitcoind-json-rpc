@@ -40,6 +40,7 @@ mod download {
     #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
     fn download_filename() -> String { format!("bitcoin-{}-win64.zip", &VERSION) }
 
+    #[allow(clippy::lines_filter_map_ok)] // clippy doesn't like the `lines` call below and the suggested fix is incorrect.
     fn get_expected_sha256(filename: &str) -> anyhow::Result<sha256::Hash> {
         let sha256sums_filename = format!("sha256/bitcoin-core-{}-SHA256SUMS", &VERSION);
         #[cfg(not(feature = "22_0"))]
@@ -143,7 +144,7 @@ mod download {
                             bitcoin_exe_home.push(d);
                         }
                         let parent = bitcoin_exe_home.parent().unwrap();
-                        std::fs::create_dir_all(&parent)
+                        std::fs::create_dir_all(parent)
                             .with_context(|| format!("cannot create dir {:?}", parent))?;
                         let mut outfile =
                             std::fs::File::create(&bitcoin_exe_home).with_context(|| {
