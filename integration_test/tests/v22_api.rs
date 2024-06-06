@@ -35,6 +35,13 @@ mod network {
     impl_test_v17__getnetworkinfo!();
 }
 
+// == Rawtransactions ==
+mod raw_transactions {
+    use super::*;
+
+    impl_test_v17__sendrawtransaction!();
+}
+
 // == Wallet ==
 mod wallet {
     use super::*;
@@ -46,4 +53,5 @@ mod wallet {
     impl_test_v17__getbalance!();
     impl_test_v19__getbalances!();
     impl_test_v17__sendtoaddress!();
+    impl_test_v17__gettransaction!();
 }

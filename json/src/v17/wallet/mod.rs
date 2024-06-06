@@ -88,3 +88,56 @@ pub struct SendToAddress {
     /// The transaction id.
     pub txid: String,
 }
+
+/// Result of the JSON-RPC method `gettransaction`.
+///
+/// > gettransaction "txid" ( include_watchonly )
+/// >
+/// > Get detailed information about in-wallet transaction `<txid>`
+/// >
+/// > Arguments:
+/// > 1. txid                 (string, required) The transaction id
+/// > 2. include_watchonly    (boolean, optional, default=false) Whether to include watch-only addresses in balance calculation and details[]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetTransaction {
+    pub amount: f64,
+    pub fee: Option<f64>,
+    pub confirmations: u32,
+    // FIXME: The docs say these two fields should be here but it is not returned.
+    //        Is it worth patching Core for a version this old?
+    //
+    // #[serde(rename = "blockhash")]
+    // pub block_hash: String,
+    // #[serde(rename = "blockindex")]
+    // pub block_index: u64,
+    pub txid: String,
+    pub time: u64,
+    #[serde(rename = "timereceived")]
+    pub time_received: u64,
+    #[serde(rename = "bip125-replaceable")]
+    pub bip125_replaceable: String,
+    pub details: Vec<GetTransactionDetail>,
+    pub hex: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetTransactionDetail {
+    pub address: String,
+    pub category: GetTransactionDetailCategory,
+    pub amount: f64,
+    pub label: Option<String>,
+    pub vout: u32,
+    pub fee: Option<f64>,
+    pub abandoned: Option<bool>,
+}
+
+/// Enum to represent the category of a transaction.
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum GetTransactionDetailCategory {
+    Send,
+    Receive,
+    Generate,
+    Immature,
+    Orphan,
+}

@@ -32,8 +32,10 @@ pub use self::{
     },
     generating::GenerateToAddress,
     network::{GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork},
+    raw_transactions::SendRawTransaction,
     wallet::{
         CreateWallet, GetBalance, GetBalances, GetBalancesMine, GetBalancesWatchOnly,
-        GetNewAddress, LoadWallet, SendToAddress, UnloadWallet,
+        GetNewAddress, GetTransaction, GetTransactionDetail, GetTransactionDetailCategory,
+        LoadWallet, SendToAddress, UnloadWallet,
     },
 };

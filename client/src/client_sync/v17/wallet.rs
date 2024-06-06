@@ -71,8 +71,23 @@ macro_rules! impl_client_v17__getnewaddress {
                 Ok(address)
             }
 
+            /// Gets a new address from `bitcoind` and parses it assuming its correct.
+            pub fn new_address_with_type(&self, ty: AddressType) -> Result<bitcoin::Address> {
+                use core::str::FromStr;
+
+                let json = self.get_new_address_with_type(ty)?;
+                let address = bitcoin::Address::from_str(&json.0)
+                    .expect("assume the address is valid")
+                    .assume_checked(); // Assume bitcoind will return an invalid address for the network its on.
+                Ok(address)
+            }
+
             pub fn get_new_address(&self) -> Result<GetNewAddress> {
                 self.call("getnewaddress", &[])
+            }
+
+            pub fn get_new_address_with_type(&self, ty: AddressType) -> Result<GetNewAddress> {
+                self.call("getnewaddress", &["".into(), into_json(ty)?])
             }
         }
     };
@@ -90,6 +105,18 @@ macro_rules! impl_client_v17__sendtoaddress {
             ) -> Result<bitcoin::Txid> {
                 let mut args = [address.to_string().into(), into_json(amount.to_btc())?];
                 self.call("sendtoaddress", handle_defaults(&mut args, &["".into(), "".into()]))
+            }
+        }
+    };
+}
+
+/// Implements bitcoind JSON-RPC API method `gettransaction`
+#[macro_export]
+macro_rules! impl_client_v17__gettransaction {
+    () => {
+        impl Client {
+            pub fn get_transaction(&self, txid: Txid) -> Result<GetTransaction> {
+                self.call("gettransaction", &[into_json(txid)?])
             }
         }
     };

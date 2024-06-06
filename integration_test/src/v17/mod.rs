@@ -6,4 +6,5 @@ pub mod blockchain;
 pub mod control;
 pub mod generating;
 pub mod network;
+pub mod raw_transactions;
 pub mod wallet;

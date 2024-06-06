@@ -111,7 +111,7 @@
 //! - [ ] `getrawchangeaddress ( "address_type" )`
 //! - [ ] `getreceivedbyaddress "address" ( minconf )`
 //! - [ ] `getreceivedbylabel "label" ( minconf )`
-//! - [ ] `gettransaction "txid" ( include_watchonly )`
+//! - [x] `gettransaction "txid" ( include_watchonly )`
 //! - [ ] `getunconfirmedbalance`
 //! - [ ] `getwalletinfo`
 //! - [ ] `importaddress "address" ( "label" rescan p2sh )`
@@ -156,6 +156,7 @@
 pub use crate::v17::{
     Bip9Softfork, Bip9SoftforkStatus, CreateWallet, GenerateToAddress, GetBalance,
     GetBestBlockHash, GetBlockVerbosityOne, GetBlockVerbosityZero, GetBlockchainInfo,
-    GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork, GetNewAddress, GetTxOut,
-    LoadWallet, ScriptPubkey, SendToAddress, Softfork, SoftforkReject,
+    GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork, GetNewAddress, GetTransaction,
+    GetTransactionDetail, GetTransactionDetailCategory, GetTxOut, LoadWallet, ScriptPubkey,
+    SendRawTransaction, SendToAddress, Softfork, SoftforkReject,
 };
