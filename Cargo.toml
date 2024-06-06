@@ -1,6 +1,6 @@
 [workspace]
-members = ["client", "json", "bitcoind"]
-exclude = ["integration_test"]
+members = ["client", "json"]
+exclude = ["integration_test", "bitcoind"]
 resolver = "2"
 
 [patch.crates-io.bitcoind-json-rpc-client]

@@ -6,9 +6,11 @@ license = "CC0-1.0"
 description = "Integration tests for bitcoind-json-rpc-client/types"
 edition = "2021"
 
+# Please note, in this crate the version features are mutally exclusive.
+#
+# - `cargo test --all-features` is the same as `cargo test --features=v26_0`
+# - `cargo test --no-default-features` skips all tests.
 [features]
-"default" = []
-
 # Enable the same feature in `bitcoind` and the version feature here.
 # All minor releases (but only the latest patch release).
 "26_0" = ["v26", "bitcoind/26_0"]

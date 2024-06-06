@@ -46,18 +46,14 @@ are many issues with this approach like:
 
 * External script may interfere with local development environment [1](https://github.com/rust-bitcoin/rust-bitcoincore-rpc/blob/200fc8247c1896709a673b82a89ca0da5e7aa2ce/integration_test/run.sh#L9)
 * Use of a single huge test to test everything [2](https://github.com/rust-bitcoin/rust-bitcoincore-rpc/blob/200fc8247c1896709a673b82a89ca0da5e7aa2ce/integration_test/src/main.rs#L122-L203)
-* If test are separated, a failing test may fail to leave a clean situation, causing other test to 
-fail (because of the initial situation, not a real failure)
+* If test are separated, a failing test may fail to leave a clean situation, causing other test to fail (because of the initial situation, not a real failure)
 * bash script are hard, especially support different OS and versions
 
 ## Features
 
   * It waits until bitcoind daemon become ready to accept RPC commands
-  * `bitcoind` use a temporary directory as datadir. You can specify the root of your temp directories 
-  so that you have node's datadir in a RAM disk (eg `/dev/shm`)
-  * Free ports are asked to the OS. Since you can't reserve the given port, a low probability race 
-  condition is still possible, for this reason the process is tried to be spawn 3 times with different
-  ports.
+  * `bitcoind` use a temporary directory as datadir. You can specify the root of your temp directories so that you have node's datadir in a RAM disk (eg `/dev/shm`)
+  * Free ports are asked to the OS. Since you can't reserve the given port, a low probability race condition is still possible, for this reason the process is tried to be spawn 3 times with different ports.
   * The process is killed when the struct goes out of scope no matter how the test finishes
   * Allows easy spawning of dependent processes like:
     - [electrs](https://github.com/RCasatta/electrsd)
@@ -87,8 +83,7 @@ cargo update -p tempfile --precise 3.3.0
 cargo update -p log --precise 0.4.18
 ```
 
-Pinning in `Cargo.toml` is avoided because it could cause
-compilation issues downstream.
+Pinning in `Cargo.toml` is avoided because it could cause compilation issues downstream.
 
 ## Nix
 

@@ -20,3 +20,7 @@ fmt:
 # Check the formatting
 format:
   cargo +$(cat ./nightly-version) fmt --all --check
+
+# Update the recent and minimal lock files.
+update-lock-files:
+  contrib/update-lock-files.sh
