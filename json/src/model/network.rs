@@ -8,7 +8,7 @@
 use bitcoin::FeeRate;
 use serde::{Deserialize, Serialize};
 
-/// Model of the result of the JSON-RPC method `getnetworkinfo`.
+/// Models the result of JSON-RPC method `getnetworkinfo`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GetNetworkInfo {
     /// The server version.

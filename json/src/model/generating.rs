@@ -8,6 +8,6 @@
 use bitcoin::BlockHash;
 use serde::{Deserialize, Serialize};
 
-/// Model of the result of JSON-RPC method `generatetoaddress`.
+/// Models the result of JSON-RPC method `generatetoaddress`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GenerateToAddress(pub Vec<BlockHash>);

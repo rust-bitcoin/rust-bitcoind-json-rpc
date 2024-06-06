@@ -9,7 +9,7 @@ use bitcoin::address::{Address, NetworkUnchecked};
 use bitcoin::{Amount, Txid};
 use serde::{Deserialize, Serialize};
 
-/// Model of the result of the JSON-RPC method `createwallet`.
+/// Models the result of JSON-RPC method  `createwallet`.
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct CreateWallet {
     /// The wallet name if created successfully.
@@ -20,7 +20,7 @@ pub struct CreateWallet {
     pub warnings: Vec<String>,
 }
 
-/// Model of the result of the JSON-RPC method `loadwallet`.
+/// Models the result of JSON-RPC method `loadwallet`.
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct LoadWallet {
     /// The wallet name if loaded successfully.
@@ -29,18 +29,18 @@ pub struct LoadWallet {
     pub warnings: Vec<String>,
 }
 
-/// Model of the result of the JSON-RPC method `unloadwallet`.
+/// Models the result of JSON-RPC method `unloadwallet`.
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct UnloadWallet {
     /// Warning messages, if any, related to unloading the wallet.
     pub warnings: Vec<String>,
 }
 
-/// Model of the result of the JSON-RPC method `getbalance`.
+/// Models the result of JSON-RPC method `getbalance`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GetBalance(pub Amount);
 
-/// Model of the result of the JSON-RPC method `getbalances`.
+/// Models the result of JSON-RPC method `getbalances`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GetBalances {
     /// Balances from outputs that the wallet can sign.
@@ -74,11 +74,11 @@ pub struct GetBalancesWatchOnly {
     pub immature: Amount,
 }
 
-/// Model of the result of the JSON-RPC method `getnewaddress`.
+/// Models the result of JSON-RPC method `getnewaddress`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GetNewAddress(pub Address<NetworkUnchecked>);
 
-/// Model of the result of the JSON-RPC method `sendtoaddress`.
+/// Models the result of JSON-RPC method `sendtoaddress`.
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct SendToAddress {
     /// The transaction id.

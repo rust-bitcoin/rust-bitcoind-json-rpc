@@ -11,7 +11,7 @@ use bitcoin::address::NetworkUnchecked;
 use bitcoin::{block, Address, Block, BlockHash, CompactTarget, Network, TxOut, Weight, Work};
 use serde::{Deserialize, Serialize};
 
-/// Models the result of the "getblockchaininfo" RPC call.
+/// Models the result of JSON-RPC method `getblockchaininfo`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GetBlockchainInfo {
     /// Current network name as defined in BIP70 (main, test, signet, regtest).
@@ -124,11 +124,11 @@ pub struct Bip9SoftforkStatistics {
     pub possible: Option<bool>,
 }
 
-/// Model of the result of JSON-RPC method `getblock` with verbosity set to 0.
+/// Models the result of JSON-RPC method `getblock` with verbosity set to 0.
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct GetBlockVerbosityZero(pub Block);
 
-/// Model of the result of JSON-RPC method `getblock` with verbosity set to 1.
+/// Models the result of JSON-RPC method `getblock` with verbosity set to 1.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GetBlockVerbosityOne {
     /// The block hash (same as provided) in RPC call.
@@ -171,7 +171,7 @@ pub struct GetBlockVerbosityOne {
     pub next_block_hash: Option<BlockHash>,
 }
 
-/// Model of the result of JSON-RPC method `gettxout`.
+/// Models the result of JSON-RPC method `gettxout`.
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct GetTxOut {
     /// The hash of the block at the tip of the chain.
@@ -186,6 +186,6 @@ pub struct GetTxOut {
     pub coinbase: bool,
 }
 
-/// Model of the result of JSON-RPC method `getbestblockhash`.
+/// Models the result of JSON-RPC method `getbestblockhash`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GetBestBlockHash(pub BlockHash);

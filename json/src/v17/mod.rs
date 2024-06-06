@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: CC0-1.0
 
-//! Structs with standard types.
+//! JSON-RPC types for `bitcoind v0.17.1`.
 //!
-//! These structs model the types returned by the JSON-RPC API and use stdlib types (or custom
-//! types) and are specific to a specific to Bitcoin Core `v0.17.1`.
+//! These structs model the JSON data returned by the JSON-RPC API. They use stdlib types (or custom
+//! types), for more concrete types see [`crate::model`].
 //!
 //! A `x` marks methods that are implemented _and_ tested.
 //!
