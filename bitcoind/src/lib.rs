@@ -386,13 +386,13 @@ impl BitcoinD {
             let client_result: Result<serde_json::Value, _> =
                 client_base.call("getblockchaininfo", &[]);
 
-            if let Ok(_) = client_result {
+            if client_result.is_ok() {
                 let url = match &conf.wallet {
                     Some(wallet) => {
                         debug!("trying to create/load wallet: {}", wallet);
-                        if let Err(e) = client_base.create_wallet(&wallet) {
-                            debug!("e: {:?}", e);
-                            client_base.load_wallet(&wallet)?;
+                        if let Err(e) = client_base.create_wallet(wallet) {
+                            debug!("initial create_wallet unsuccessful, try loading instead: {:?}", e);
+                            client_base.load_wallet(wallet)?;
                         }
                         format!("{}/wallet/{}", rpc_url, wallet)
                     }
@@ -527,7 +527,7 @@ pub fn downloaded_exe_path() -> anyhow::Result<String> {
 ///
 /// 1) If it's specified in the `BITCOIND_EXE` env var
 /// 2) If there is no env var but an auto-download feature such as `23_1` is enabled, returns the
-/// path of the downloaded executabled
+///    path of the downloaded executabled
 /// 3) If neither of the precedent are available, the `bitcoind` executable is searched in the `PATH`
 pub fn exe_path() -> anyhow::Result<String> {
     if let Ok(path) = std::env::var("BITCOIND_EXE") {
@@ -611,12 +611,12 @@ mod test {
     #[test]
     fn test_p2p() {
         let exe = init();
-        let mut conf = Conf::default();
+        let mut conf = Conf::<'_> { p2p: P2P::Yes, ..Default::default() };
         conf.p2p = P2P::Yes;
 
         let bitcoind = BitcoinD::with_conf(&exe, &conf).unwrap();
         assert_eq!(peers_connected(&bitcoind.client), 0);
-        let mut other_conf = Conf::default();
+        let mut other_conf = Conf::<'_> { p2p: bitcoind.p2p_connect(false).unwrap(), ..Default::default() };
         other_conf.p2p = bitcoind.p2p_connect(false).unwrap();
 
         let other_bitcoind = BitcoinD::with_conf(&exe, &other_conf).unwrap();
@@ -659,18 +659,15 @@ mod test {
     #[test]
     fn test_multi_p2p() {
         let _ = env_logger::try_init();
-        let mut conf_node1 = Conf::default();
-        conf_node1.p2p = P2P::Yes;
+        let conf_node1 = Conf::<'_> { p2p: P2P::Yes, ..Default::default() };
         let node1 = BitcoinD::with_conf(exe_path().unwrap(), &conf_node1).unwrap();
 
         // Create Node 2 connected Node 1
-        let mut conf_node2 = Conf::default();
-        conf_node2.p2p = node1.p2p_connect(true).unwrap();
+        let conf_node2 = Conf::<'_> { p2p: node1.p2p_connect(true).unwrap(), ..Default::default() };
         let node2 = BitcoinD::with_conf(exe_path().unwrap(), &conf_node2).unwrap();
 
         // Create Node 3 Connected To Node
-        let mut conf_node3 = Conf::default();
-        conf_node3.p2p = node2.p2p_connect(false).unwrap();
+        let conf_node3 = Conf::<'_> { p2p: node2.p2p_connect(false).unwrap(), ..Default::default() };
         let node3 = BitcoinD::with_conf(exe_path().unwrap(), &conf_node3).unwrap();
 
         // Get each nodes Peers
@@ -687,8 +684,6 @@ mod test {
     #[cfg(any(feature = "0_19_1", not(feature = "download")))]
     #[test]
     fn test_multi_wallet() {
-        use std::convert::TryInto;
-
         use bitcoind_json_rpc_client::bitcoin::Amount;
 
         use crate::client::json;
@@ -703,10 +698,10 @@ mod test {
         bitcoind.client.generate_to_address(101, &bob_address).unwrap();
 
         let balances = alice.get_balances().unwrap();
-        let alice_balances: json::GetBalances = balances.try_into().unwrap();
+        let alice_balances: json::GetBalances = balances;
 
         let balances = bob.get_balances().unwrap();
-        let bob_balances: json::GetBalances = balances.try_into().unwrap();
+        let bob_balances: json::GetBalances = balances;
 
         assert_eq!(
             Amount::from_btc(50.0).unwrap(),
@@ -723,7 +718,7 @@ mod test {
         let _txid = alice.send_to_address(&bob_address, Amount::from_btc(1.0).unwrap()).unwrap();
 
         let balances = alice.get_balances().unwrap();
-        let alice_balances: json::GetBalances = balances.try_into().unwrap();
+        let alice_balances: json::GetBalances = balances;
 
         assert!(
             Amount::from_btc(alice_balances.mine.trusted).unwrap()
@@ -735,7 +730,7 @@ mod test {
         // bob wallet may not be immediately updated
         for _ in 0..30 {
             let balances = bob.get_balances().unwrap();
-            let bob_balances: json::GetBalances = balances.try_into().unwrap();
+            let bob_balances: json::GetBalances = balances;
 
             if Amount::from_btc(bob_balances.mine.untrusted_pending).unwrap().to_sat() > 0 {
                 break;
@@ -743,7 +738,7 @@ mod test {
             std::thread::sleep(std::time::Duration::from_millis(100));
         }
         let balances = bob.get_balances().unwrap();
-        let bob_balances: json::GetBalances = balances.try_into().unwrap();
+        let bob_balances: json::GetBalances = balances;
 
         assert_eq!(
             Amount::from_btc(1.0).unwrap(),
@@ -809,8 +804,7 @@ mod test {
 
     #[test]
     fn zmq_interface_enabled() {
-        let mut conf = Conf::default();
-        conf.enable_zmq = true;
+        let conf = Conf::<'_> { enable_zmq: true, ..Default::default() };
         let bitcoind = BitcoinD::with_conf(exe_path().unwrap(), &conf).unwrap();
 
         assert!(bitcoind.params.zmq_pub_raw_tx_socket.is_some());
