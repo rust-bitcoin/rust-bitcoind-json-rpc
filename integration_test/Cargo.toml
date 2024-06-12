@@ -47,7 +47,7 @@ edition = "2021"
 [dependencies]
 bitcoin = { version = "0.32.0", default-features = false, features = ["std", "serde"] }
 client = { package = "bitcoind-json-rpc-client", version = "0.1.0", default-features = false, features = ["client-sync"] }
-bitcoind = { version = "0.37.0", default-features = false, features = [] }
+bitcoind = { package = "bitcoind-json-rpc-regtest", version = "0.1.0", default-features = false, features = [] }
 rand = "0.8.5"
 env_logger = "0.9.0"
 
@@ -59,5 +59,5 @@ path = "../client"
 [patch.crates-io.bitcoind-json-rpc-types]
 path = "../json"
 
-[patch.crates-io.bitcoind]
-path = "../bitcoind"
+[patch.crates-io.bitcoind-json-rpc-regtest]
+path = "../regtest"
