@@ -189,6 +189,7 @@ const INVALID_ARGS: [&str; 2] = ["-rpcuser", "-rpcpassword"];
 ///
 /// Default values:
 /// ```
+/// use bitcoind_json_rpc_regtest as bitcoind;
 /// let mut conf = bitcoind::Conf::default();
 /// conf.args = vec!["-regtest", "-fallbackfee=0.0001"];
 /// conf.view_stdout = false;

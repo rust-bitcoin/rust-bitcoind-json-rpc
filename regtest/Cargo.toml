@@ -1,11 +1,11 @@
 [package]
-name = "bitcoind"
-version = "0.37.0"
-authors = ["Riccardo Casatta <riccardo@casatta.it>"]
-description = "Utility to run a regtest bitcoind process, useful in integration testing environment"
+name = "bitcoind-json-rpc-regtest"
+version = "0.1.0"
+authors = ["Riccardo Casatta <riccardo@casatta.it>", "Tobin C. Harding <me@tobin.cc>"]
+description = "Utility to run a regtest bitcoind process, useful in integration testing environments"
 license = "MIT"
-repository = "https://github.com/RCasatta/bitcoind"
-documentation = "https://docs.rs/bitcoind/"
+repository = "https://github.com/tcharding/rust-bitcoind-json-rpc"
+documentation = "https://docs.rs/bitcoind-json-rpc-regtest/"
 rust-version = "1.56.1"
 edition = "2018"
 categories = ["cryptography::cryptocurrencies", "development-tools::testing"]
@@ -71,6 +71,3 @@ path = "../client"
 
 [patch.crates-io.bitcoind-json-rpc-types]
 path = "../json"
-
-[patch.crates-io.bitcoind]
-path = "../bitcoind"
