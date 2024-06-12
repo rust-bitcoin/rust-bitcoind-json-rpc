@@ -6,7 +6,7 @@
 //! and are not specific to a specific version of Bitcoin Core.
 
 use bitcoin::address::{Address, NetworkUnchecked};
-use bitcoin::{Amount, Txid};
+use bitcoin::{Amount, SignedAmount, Transaction, Txid};
 use serde::{Deserialize, Serialize};
 
 /// Models the result of JSON-RPC method  `createwallet`.
@@ -85,4 +85,42 @@ pub struct SendToAddress {
     pub txid: Txid,
     /// The transaction fee reason.
     pub fee_reason: String,
+}
+
+/// Models the result of JSON-RPC method `gettransaction`.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetTransaction {
+    pub amount: Amount,
+    #[serde(default, with = "bitcoin::amount::serde::as_btc::opt")]
+    pub fee: Option<SignedAmount>,
+    pub confirmations: u32,
+    pub txid: Txid,
+    pub time: u64,
+    pub time_received: u64,
+    pub bip125_replaceable: String,
+    pub details: Vec<GetTransactionDetail>,
+    pub tx: Transaction,
+}
+
+/// Part of the `GetTransaction`.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetTransactionDetail {
+    pub address: Address<NetworkUnchecked>,
+    pub category: GetTransactionDetailCategory,
+    pub amount: Amount,
+    pub label: Option<String>,
+    pub vout: u32,
+    #[serde(default, with = "bitcoin::amount::serde::as_btc::opt")]
+    pub fee: Option<SignedAmount>,
+    pub abandoned: Option<bool>,
+}
+
+/// Enum to represent the category of a transaction.
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
+pub enum GetTransactionDetailCategory {
+    Send,
+    Receive,
+    Generate,
+    Immature,
+    Orphan,
 }

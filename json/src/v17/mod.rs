@@ -109,7 +109,7 @@
 //! - [ ] `getrawchangeaddress ( "address_type" )`
 //! - [ ] `getreceivedbyaccount (Deprecated, will be removed in V0.18. To use this command, start bitcoind with -deprecatedrpc=accounts)`
 //! - [ ] `getreceivedbyaddress "address" ( minconf )`
-//! - [ ] `gettransaction "txid" ( include_watchonly )`
+//! - [x] `gettransaction "txid" ( include_watchonly )`
 //! - [ ] `getunconfirmedbalance`
 //! - [ ] `getwalletinfo`
 //! - [ ] `importaddress "address" ( "label" rescan p2sh )`
@@ -171,5 +171,9 @@ pub use self::{
     },
     generating::GenerateToAddress,
     network::{GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork},
-    wallet::{CreateWallet, GetBalance, GetNewAddress, LoadWallet, SendToAddress},
+    raw_transactions::SendRawTransaction,
+    wallet::{
+        CreateWallet, GetBalance, GetNewAddress, GetTransaction, GetTransactionDetail,
+        GetTransactionDetailCategory, LoadWallet, SendToAddress,
+    },
 };

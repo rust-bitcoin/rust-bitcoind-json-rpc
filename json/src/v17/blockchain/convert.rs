@@ -151,7 +151,7 @@ pub enum GetTxOutError {
     /// Conversion of the `best_block` field failed.
     BestBlock(hex::HexToArrayError),
     /// Conversion of the `value` field failed.
-    Value(amount::ParseAmountError),
+    Value(amount::ParseAmountError), // FIXME: Unused I thing
     /// Conversion of the `script_pubkey.hex` field failed.
     Hex(hex::HexToBytesError),
     /// Conversion of the `script_pubkey.address` field failed.

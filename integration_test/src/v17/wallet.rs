@@ -60,7 +60,9 @@ macro_rules! impl_test_v17__getbalance {
     };
 }
 
-/// Requires `Client` to be in scope and to implement `send_to_address`.
+/// Requires `Client` to be in scope and to implement:
+/// - `generate_to_address`
+/// - `send_to_address`
 #[macro_export]
 macro_rules! impl_test_v17__sendtoaddress {
     () => {
@@ -72,12 +74,35 @@ macro_rules! impl_test_v17__sendtoaddress {
             let address = bitcoind.client.new_address().expect("failed to create new address");
             let _ = bitcoind.client.generate_to_address(101, &address).expect("generatetoaddress");
 
-            let balance = bitcoind.client.get_balance().expect("getbalance");
-
             let _ = bitcoind
                 .client
                 .send_to_address(&address, Amount::from_sat(10_000))
                 .expect("sendtoaddress");
+        }
+    };
+}
+
+/// Requires `Client` to be in scope and to implement:
+/// - `generate_to_address`
+/// - `send_to_address`
+/// - `get_transaction`
+#[macro_export]
+macro_rules! impl_test_v17__gettransaction {
+    () => {
+        #[test]
+        fn get_transaction() {
+            use bitcoin::Amount;
+
+            let bitcoind = $crate::bitcoind_with_default_wallet();
+            let address = bitcoind.client.new_address().expect("failed to create new address");
+            let _ = bitcoind.client.generate_to_address(101, &address).expect("generatetoaddress");
+
+            let txid = bitcoind
+                .client
+                .send_to_address(&address, Amount::from_sat(10_000))
+                .expect("sendtoaddress");
+
+            let _ = bitcoind.client.get_transaction(txid).expect("gettransaction");
         }
     };
 }

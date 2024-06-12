@@ -112,7 +112,7 @@
 //! - [ ] `getrawchangeaddress ( "address_type" )`
 //! - [ ] `getreceivedbyaddress "address" ( minconf )`
 //! - [ ] `getreceivedbylabel "label" ( minconf )`
-//! - [ ] `gettransaction "txid" ( include_watchonly verbose )`
+//! - [x] `gettransaction "txid" ( include_watchonly verbose )`
 //! - [ ] `getunconfirmedbalance`
 //! - [ ] `getwalletinfo`
 //! - [ ] `importaddress "address" ( "label" rescan p2sh )`
@@ -169,5 +169,6 @@ pub use self::{
 pub use crate::v17::{
     CreateWallet, GenerateToAddress, GetBalance, GetBestBlockHash, GetBlockVerbosityOne,
     GetBlockVerbosityZero, GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork,
-    GetNewAddress, GetTxOut, LoadWallet, SendToAddress,
+    GetNewAddress, GetTransaction, GetTransactionDetail, GetTransactionDetailCategory, GetTxOut,
+    LoadWallet, SendRawTransaction, SendToAddress,
 };

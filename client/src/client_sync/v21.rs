@@ -18,15 +18,18 @@ crate::impl_client_v17__getbestblockhash!();
 crate::impl_client_v17__getblock!();
 crate::impl_client_v17__gettxout!();
 
-// == Network ==
-crate::impl_client_v17__getnetworkinfo!();
-crate::impl_client_check_expected_server_version!({ [210200] });
-
 // == Control ==
 crate::impl_client_v17__stop!();
 
 // == Generating ==
 crate::impl_client_v17__generatetoaddress!();
+
+// == Network ==
+crate::impl_client_v17__getnetworkinfo!();
+crate::impl_client_check_expected_server_version!({ [210200] });
+
+// == Rawtransactions ==
+crate::impl_client_v17__sendrawtransaction!();
 
 // == Wallet ==
 crate::impl_client_v17__createwallet!();
@@ -36,3 +39,6 @@ crate::impl_client_v17__getnewaddress!();
 crate::impl_client_v17__getbalance!();
 crate::impl_client_v19__getbalances!();
 crate::impl_client_v17__sendtoaddress!();
+crate::impl_client_v17__gettransaction!();
+
+pub use crate::client_sync::v17::AddressType;

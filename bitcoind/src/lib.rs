@@ -1,8 +1,10 @@
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![cfg_attr(feature = "doc", cfg_attr(all(), doc = include_str!("../README.md")))]
 
+pub extern crate bitcoind_json_rpc_client as client;
+
 #[rustfmt::skip]
-mod client;
+mod client_versions;
 mod versions;
 
 use std::ffi::OsStr;
@@ -18,9 +20,11 @@ use log::{debug, error, warn};
 use tempfile::TempDir;
 pub use {anyhow, tempfile, which};
 
-use self::client::Client;
-#[allow(unused_imports)]         // for --no-default-features
-use self::versions::VERSION;
+#[rustfmt::skip]                // Keep pubic re-exports separate.
+pub use self::{
+    client_versions::{json, Client, AddressType},
+    versions::VERSION,
+};
 
 #[derive(Debug)]
 /// Struct representing the bitcoind process with related information
@@ -686,8 +690,6 @@ mod test {
     #[test]
     fn test_multi_wallet() {
         use bitcoind_json_rpc_client::bitcoin::Amount;
-
-        use crate::client::json;
 
         let exe = init();
         let bitcoind = BitcoinD::new(exe).unwrap();
