@@ -8,9 +8,14 @@ authors = [
     "Tobin C. Harding <me@tobin.cc>"
 ]
 license = "CC0-1.0"
+repository = "https://github.com/tcharding/rust-bitcoind-json-rpc"
 description = "Bitcoin Core JSON-RPC client"
+categories = ["cryptography::cryptocurrencies"]
 keywords = ["bitcoin", "bitcoind", "json-rpc"]
+readme = "../README.md"
 edition = "2021"
+rust-version = "1.56.1"
+exclude = ["tests", "contrib"]
 
 [features]
 # Enable this feature to get a blocking JSON-RPC client.

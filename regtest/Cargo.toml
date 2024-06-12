@@ -2,13 +2,15 @@
 name = "bitcoind-json-rpc-regtest"
 version = "0.1.0"
 authors = ["Riccardo Casatta <riccardo@casatta.it>", "Tobin C. Harding <me@tobin.cc>"]
-description = "Utility to run a regtest bitcoind process, useful in integration testing environments"
 license = "MIT"
 repository = "https://github.com/tcharding/rust-bitcoind-json-rpc"
-documentation = "https://docs.rs/bitcoind-json-rpc-regtest/"
-rust-version = "1.56.1"
-edition = "2018"
+description = "Utility to run a regtest bitcoind process, useful in integration testing environments"
 categories = ["cryptography::cryptocurrencies", "development-tools::testing"]
+keywords = ["bitcoin", "bitcoind", "json-rpc"]
+readme = "../README.md"
+edition = "2021"
+rust-version = "1.56.1"
+exclude = ["tests", "contrib"]
 
 [dependencies]
 bitcoind-json-rpc-client = { version = "0.1", features = ["client-sync"] }
