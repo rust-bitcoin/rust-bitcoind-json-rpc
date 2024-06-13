@@ -107,7 +107,8 @@ pub struct GetTransaction {
 pub struct GetTransactionDetail {
     pub address: Address<NetworkUnchecked>,
     pub category: GetTransactionDetailCategory,
-    pub amount: Amount,
+    #[serde(default, with = "bitcoin::amount::serde::as_btc")]
+    pub amount: SignedAmount,
     pub label: Option<String>,
     pub vout: u32,
     #[serde(default, with = "bitcoin::amount::serde::as_btc::opt")]
