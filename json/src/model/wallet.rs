@@ -90,7 +90,8 @@ pub struct SendToAddress {
 /// Models the result of JSON-RPC method `gettransaction`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GetTransaction {
-    pub amount: Amount,
+    #[serde(default, with = "bitcoin::amount::serde::as_btc")]
+    pub amount: SignedAmount,
     #[serde(default, with = "bitcoin::amount::serde::as_btc::opt")]
     pub fee: Option<SignedAmount>,
     pub confirmations: u32,

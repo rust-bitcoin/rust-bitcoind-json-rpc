@@ -63,7 +63,7 @@ impl TryFrom<v17::GetTransaction> for model::GetTransaction {
     fn try_from(json: v17::GetTransaction) -> Result<Self, Self::Error> {
         use GetTransactionError as E;
 
-        let amount = Amount::from_btc(json.amount).map_err(E::Amount)?;
+        let amount = SignedAmount::from_btc(json.amount).map_err(E::Amount)?;
         // FIMXE: Use combinators.
         let fee = match json.fee {
             None => None,
