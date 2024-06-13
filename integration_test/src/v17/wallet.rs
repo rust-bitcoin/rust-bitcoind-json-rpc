@@ -42,8 +42,16 @@ macro_rules! impl_test_v17__getnewaddress {
     () => {
         #[test]
         fn get_new_address() {
+            use bitcoind::AddressType;
+
             let bitcoind = $crate::bitcoind_with_default_wallet();
             let _ = bitcoind.client.get_new_address().expect("getnewaddress");
+
+            let addr = bitcoind
+                .client
+                .new_address_with_type(AddressType::Bech32)
+                .unwrap();
+
         }
     };
 }

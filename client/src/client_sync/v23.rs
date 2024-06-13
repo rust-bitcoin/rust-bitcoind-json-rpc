@@ -44,6 +44,7 @@ crate::impl_client_v17__gettransaction!();
 
 /// Argument to the `Client::get_new_address_with_type` function.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum AddressType {
     Legacy,
     P2ShSegwit,
