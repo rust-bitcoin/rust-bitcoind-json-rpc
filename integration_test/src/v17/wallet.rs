@@ -95,6 +95,7 @@ macro_rules! impl_test_v17__gettransaction {
         #[test]
         fn get_transaction() {
             use bitcoin::Amount;
+            use client::json::model;
 
             let bitcoind = $crate::bitcoind_with_default_wallet();
             let address = bitcoind.client.new_address().expect("failed to create new address");
@@ -105,7 +106,8 @@ macro_rules! impl_test_v17__gettransaction {
                 .send_to_address(&address, Amount::from_sat(10_000))
                 .expect("sendtoaddress");
 
-            let _ = bitcoind.client.get_transaction(txid).expect("gettransaction");
+            let json = bitcoind.client.get_transaction(txid).expect("gettransaction");
+            let _: model::GetTransaction = json.try_into().unwrap();
         }
     };
 }
