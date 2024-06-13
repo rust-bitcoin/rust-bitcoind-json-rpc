@@ -54,8 +54,11 @@ macro_rules! impl_test_v17__getbalance {
     () => {
         #[test]
         fn get_balance() {
+            use client::json::model;
+
             let bitcoind = $crate::bitcoind_with_default_wallet();
-            let _ = bitcoind.client.get_balance().expect("getbalance");
+            let json = bitcoind.client.get_balance().expect("getbalance");
+            let _: model::GetBalance = json.try_into().unwrap();
         }
     };
 }
