@@ -18,7 +18,8 @@ macro_rules! impl_client_v17__sendrawtransaction {
                 &self,
                 tx: &bitcoin::Transaction,
             ) -> Result<SendRawTransaction> {
-                self.call("sendrawtransaction", &[into_json(tx)?])
+                let hex = bitcoin::consensus::encode::serialize_hex(tx);
+                self.call("sendrawtransaction", &[hex.into()])
             }
         }
     };
