@@ -1,6 +1,6 @@
 [package]
 name = "bitcoind-json-rpc-types"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
     "Steven Roose <steven@stevenroose.org>",
     "Jean Pierre Dudey <jeandudey@hotmail.com>",
