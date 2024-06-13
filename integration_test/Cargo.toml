@@ -30,7 +30,7 @@ edition = "2021"
 "0_20_2" = ["v20", "bitcoind/0_20_2"]
 "0_19_1" = ["v19", "bitcoind/0_19_1"]
 "0_18_1" = ["v18", "bitcoind/0_18_1"]
-"0_17_2" = ["v17", "bitcoind/0_17_2"]
+"0_17_1" = ["v17", "bitcoind/0_17_1"]
 
 # Each minor version is tested with the same client.
 "v26" = []

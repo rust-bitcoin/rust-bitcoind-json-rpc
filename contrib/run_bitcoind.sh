@@ -32,7 +32,7 @@ KNOWN_VERSION
    - v20                Bitcoin Core v0.20.2
    - v19                Bitcoin Core v0.19.1
    - v18                Bitcoin Core v0.18.1
-   - v17                Bitcoin Core v0.17.2
+   - v17                Bitcoin Core v0.17.1
 EOF
 }
 
@@ -57,7 +57,7 @@ main() {
             start "v20"         # 0.20.2
             start "v19"         # 0.19.1
             start "v18"         # 0.18.1
-            start "v17"         # 0.17.2
+            start "v17"         # 0.17.1
             ;;
 
         start)
@@ -66,7 +66,7 @@ main() {
 
         stop)
             pkill bitcoind
-            rm -rf "/tmp/rust-bitcoind-json-rpc-0.17.2/2/regtest/wallets" > /dev/null
+            rm -rf "/tmp/rust-bitcoind-json-rpc-0.17.1/2/regtest/wallets" > /dev/null
             rm -rf "/tmp/rust-bitcoind-json-rpc-0.18.1/2/regtest/wallets" > /dev/null
             rm -rf "/tmp/rust-bitcoind-json-rpc-22.1/2/regtest/wallets" > /dev/null
             ;;
@@ -128,7 +128,7 @@ start() {
             ;;
 
         v17)
-            local version_number="0.17.2"
+            local version_number="0.17.1"
             local version_id="172"
             ;;
 
