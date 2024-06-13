@@ -142,7 +142,7 @@ impl TryFrom<v17::GetTransactionDetail> for model::GetTransactionDetail {
         use GetTransactionDetailError as E;
 
         let address = Address::from_str(&json.address).map_err(E::Address)?;
-        let amount = Amount::from_btc(json.amount).map_err(E::Amount)?;
+        let amount = SignedAmount::from_btc(json.amount).map_err(E::Amount)?;
         // FIMXE: Use combinators.
         let fee = match json.fee {
             None => None,

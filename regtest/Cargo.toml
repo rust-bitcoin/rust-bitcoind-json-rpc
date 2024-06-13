@@ -1,6 +1,6 @@
 [package]
 name = "bitcoind-json-rpc-regtest"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Riccardo Casatta <riccardo@casatta.it>", "Tobin C. Harding <me@tobin.cc>"]
 license = "MIT"
 repository = "https://github.com/tcharding/rust-bitcoind-json-rpc"
@@ -13,7 +13,7 @@ rust-version = "1.56.1"
 exclude = ["tests", "contrib"]
 
 [dependencies]
-bitcoind-json-rpc-client = { version = "0.1", features = ["client-sync"] }
+bitcoind-json-rpc-client = { version = "0.2", features = ["client-sync"] }
 log = "0.4"
 which = "4.2.5"
 anyhow = "1.0.66"
@@ -58,8 +58,8 @@ anyhow = "1.0.66"
 "0_21_2" = ["download", "0_20_2"]
 "0_20_2" = ["download", "0_19_1"]
 "0_19_1" = ["download", "0_18_1"]
-"0_18_1" = ["download", "0_17_2"]
-"0_17_2" = ["download"]
+"0_18_1" = ["download", "0_17_1"]
+"0_17_1" = ["download"]
 
 "doc" = [] # used only for documentation building
 
