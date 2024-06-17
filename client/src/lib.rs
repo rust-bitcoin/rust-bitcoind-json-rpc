@@ -5,7 +5,7 @@
 /// Re-export the `rust-bitcoin` crate.
 pub extern crate bitcoin;
 
-/// Re-export the `rust-bitcoin-json-rpc-tyes` crate.
+/// Re-export the `rust-bitcoin-json-rpc-types` crate.
 pub extern crate json;
 
 #[cfg(feature = "client-sync")]

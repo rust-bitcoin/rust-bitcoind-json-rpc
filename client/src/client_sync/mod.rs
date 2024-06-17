@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: CC0-1.0
 
-//! A JSON-RPC client for testing against Bitcoin Core v22.
+//! JSON-RPC clients for testing against specific versions of Bitcoin Core.
 
 mod error;
 pub mod v17;
