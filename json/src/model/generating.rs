@@ -11,3 +11,11 @@ use serde::{Deserialize, Serialize};
 /// Models the result of JSON-RPC method `generatetoaddress`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GenerateToAddress(pub Vec<BlockHash>);
+
+impl GenerateToAddress {
+    /// Returns the number of blocks generated.
+    pub fn len(&self) -> usize { self.0.len() }
+
+    /// Returns true if 0 blocks were generated.
+    pub fn is_empty(&self) -> bool { self.0.is_empty() }
+}
