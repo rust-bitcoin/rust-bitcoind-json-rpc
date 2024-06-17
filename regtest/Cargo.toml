@@ -1,6 +1,6 @@
 [package]
 name = "bitcoind-json-rpc-regtest"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Riccardo Casatta <riccardo@casatta.it>", "Tobin C. Harding <me@tobin.cc>"]
 license = "MIT"
 repository = "https://github.com/tcharding/rust-bitcoind-json-rpc"
@@ -65,7 +65,7 @@ anyhow = "1.0.66"
 
 
 [package.metadata.docs.rs]
-features = ["download", "doc"]
+features = ["download", "doc", "26_0"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [patch.crates-io.bitcoind-json-rpc-client]
