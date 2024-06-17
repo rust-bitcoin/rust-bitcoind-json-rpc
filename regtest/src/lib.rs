@@ -21,6 +21,7 @@ use tempfile::TempDir;
 pub use {anyhow, tempfile, which};
 
 #[rustfmt::skip]                // Keep pubic re-exports separate.
+#[doc(inline)]
 pub use self::{
     client_versions::{json, Client, AddressType},
     versions::VERSION,

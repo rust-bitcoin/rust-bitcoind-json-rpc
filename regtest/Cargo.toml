@@ -65,7 +65,7 @@ anyhow = "1.0.66"
 
 
 [package.metadata.docs.rs]
-features = ["download", "doc"]
+features = ["download", "doc", "26_0"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [patch.crates-io.bitcoind-json-rpc-client]
