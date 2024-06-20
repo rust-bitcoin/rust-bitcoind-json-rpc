@@ -12,7 +12,9 @@ macro_rules! impl_test_v17__getnetworkinfo {
         #[test]
         fn get_network_info() {
             let bitcoind = $crate::bitcoind_no_wallet();
-            let _ = bitcoind.client.get_network_info().expect("getnetworkinfo");
+            let json = bitcoind.client.get_network_info().expect("getnetworkinfo");
+            json.into_model().unwrap();
+
             bitcoind.client.check_expected_server_version().expect("unexpected version");
         }
     };

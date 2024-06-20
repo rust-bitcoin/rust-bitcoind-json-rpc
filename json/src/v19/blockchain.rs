@@ -4,11 +4,15 @@
 //!
 //! Types for methods found under the `== Blockchain ==` section of the API docs.
 
-mod convert;
-
+use core::fmt;
 use std::collections::BTreeMap;
 
+use bitcoin::error::UnprefixedHexError;
+use bitcoin::{hex, network, BlockHash, Network, Work};
+use internals::write_err;
 use serde::{Deserialize, Serialize};
+
+use crate::model;
 
 #[rustfmt::skip]                // Keep public re-exports separate.
 
@@ -134,4 +138,72 @@ pub struct Bip9SoftforkStatistics {
     pub count: u32,
     /// `false` if there are not enough blocks left in this period to pass activation threshold.
     pub possible: Option<bool>,
+}
+
+impl GetBlockchainInfo {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> Result<model::GetBlockchainInfo, GetBlockchainInfoError> {
+        use GetBlockchainInfoError as E;
+
+        let chain = Network::from_core_arg(&self.chain).map_err(E::Chain)?;
+        let best_block_hash =
+            self.best_block_hash.parse::<BlockHash>().map_err(E::BestBlockHash)?;
+        // FIXME: Is unprefixed correct?
+        let chain_work = Work::from_unprefixed_hex(&self.chain_work).map_err(E::ChainWork)?;
+
+        let softforks = BTreeMap::new(); // TODO: Handle softforks stuff.
+
+        Ok(model::GetBlockchainInfo {
+            chain,
+            blocks: self.blocks,
+            headers: self.headers,
+            best_block_hash,
+            difficulty: self.difficulty,
+            median_time: self.median_time,
+            verification_progress: self.verification_progress,
+            initial_block_download: self.initial_block_download,
+            chain_work,
+            size_on_disk: self.size_on_disk,
+            pruned: self.pruned,
+            prune_height: self.prune_height,
+            automatic_pruning: self.automatic_pruning,
+            prune_target_size: self.prune_target_size,
+            softforks,
+            warnings: self.warnings,
+        })
+    }
+}
+
+/// Error when converting a `GetBlockchainInfo` type into the model type.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum GetBlockchainInfoError {
+    Chain(network::ParseNetworkError),
+    BestBlockHash(hex::HexToArrayError),
+    ChainWork(UnprefixedHexError),
+}
+
+impl fmt::Display for GetBlockchainInfoError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use GetBlockchainInfoError::*;
+
+        match *self {
+            Chain(ref e) => write_err!(f, "conversion of the `chain` field failed"; e),
+            BestBlockHash(ref e) => {
+                write_err!(f, "conversion of the `best_block_hash` field failed"; e)
+            }
+            ChainWork(ref e) => write_err!(f, "conversion of the `chain_work` field failed"; e),
+        }
+    }
+}
+
+impl std::error::Error for GetBlockchainInfoError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        use GetBlockchainInfoError::*;
+
+        match *self {
+            Chain(ref e) => Some(e),
+            BestBlockHash(ref e) => Some(e),
+            ChainWork(ref e) => Some(e),
+        }
+    }
 }

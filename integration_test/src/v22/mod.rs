@@ -2,5 +2,4 @@
 
 //! Macros for implementing test methods on a JSON-RPC client for `bitcoind v22.1`.
 
-pub mod blockchain;
 pub mod wallet;

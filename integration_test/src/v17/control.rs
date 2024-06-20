@@ -12,6 +12,7 @@ macro_rules! impl_test_v17__stop {
         #[test]
         fn stop() {
             let bitcoind = $crate::bitcoind_no_wallet();
+            // There is no json object for `stop`, we just return a string.
             let _ = bitcoind.client.stop().expect("stop");
         }
     };

@@ -1,3 +1,10 @@
+// SPDX-License-Identifier: CC0-1.0
+
+//! Macros for implementing test methods on a JSON-RPC client.
+//!
+//! Specifically this is methods found under the `== Wallet ==` section of the
+//! API docs of `bitcoind v22.1`.
+
 /// Requires `Client` to be in scope and to implement `unloadwallet`.
 #[macro_export]
 macro_rules! impl_test_v22__unloadwallet {

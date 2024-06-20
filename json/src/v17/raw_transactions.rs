@@ -4,9 +4,10 @@
 //!
 //! Types for methods found under the `== Rawtransactions ==` section of the API docs.
 
-mod convert;
-
+use bitcoin::{hex, Txid};
 use serde::{Deserialize, Serialize};
+
+use crate::model;
 
 /// Result of JSON-RPC method `sendrawtransaction`.
 ///
@@ -21,3 +22,17 @@ use serde::{Deserialize, Serialize};
 /// > 2. allowhighfees    (boolean, optional, default=false) Allow high fees
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct SendRawTransaction(pub String); // The hex encoded txid.
+
+impl SendRawTransaction {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> Result<model::SendRawTransaction, hex::HexToArrayError> {
+        let txid = self.0.parse::<Txid>()?;
+        Ok(model::SendRawTransaction(txid))
+    }
+
+    /// Converts json straight to a `bitcoin::Txid`.
+    pub fn txid(self) -> Result<Txid, hex::HexToArrayError> {
+        let model = self.into_model()?;
+        Ok(model.0)
+    }
+}
