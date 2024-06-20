@@ -1,3 +1,7 @@
+# 0.2.2 - 2024-06-21
+
+- Fix bugs in `AddressType`
+
 # 0.2.1 - 2024-06-17
 
 - Enable all features in docs build.
