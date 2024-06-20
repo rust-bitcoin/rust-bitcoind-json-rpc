@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: CC0-1.0
 
-//! The JSON-RPC API for Bitcoin Core v22.1 - wallet.
+//! The JSON-RPC API for Bitcoin Core v22 - wallet.
 //!
 //! Types for methods found under the `== Wallet ==` section of the API docs.
 
-mod convert;
-
 use serde::{Deserialize, Serialize};
+
+use crate::model;
 
 /// Result of the JSON-RPC method `unloadwallet`.
 ///
@@ -24,20 +24,9 @@ pub struct UnloadWallet {
     pub warning: String,
 }
 
-/// Result of the JSON-RPC method `sendtoaddress`.
-///
-/// > sendtoaddress "address" amount ( "comment" "comment_to" subtractfeefromamount replaceable conf_target "estimate_mode" avoid_reuse fee_rate verbose )
-/// >
-/// > Send an amount to a given address.
-/// > Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
-/// >
-/// > Arguments:
-/// > 1. address                  (string, required) The bitcoin address to send to.
-/// > 2. amount                   (numeric or string, required) The amount in BTC to send. eg 0.1
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct SendToAddress {
-    /// The transaction id.
-    pub txid: String,
-    /// The transaction fee reason.
-    pub fee_reason: String,
+impl UnloadWallet {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> model::UnloadWallet {
+        model::UnloadWallet { warnings: vec![self.warning] }
+    }
 }

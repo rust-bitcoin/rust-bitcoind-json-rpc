@@ -13,7 +13,8 @@ macro_rules! impl_test_v17__generatetoaddress {
         fn generate_to_address() {
             let bitcoind = $crate::bitcoind_with_default_wallet();
             let address = bitcoind.client.new_address().expect("failed to get new address");
-            let _ = bitcoind.client.generate_to_address(1, &address).expect("generatetoaddress");
+            let json = bitcoind.client.generate_to_address(1, &address).expect("generatetoaddress");
+            json.into_model().unwrap();
         }
     };
 }

@@ -29,8 +29,7 @@ macro_rules! impl_client_v17__getbestblockhash {
             /// Gets the blockhash of the current chain tip.
             pub fn best_block_hash(&self) -> Result<bitcoin::BlockHash> {
                 let json = self.get_best_block_hash()?;
-                let concrete: $crate::json::model::GetBestBlockHash = json.try_into().unwrap();
-                Ok(concrete.0)
+                Ok(json.block_hash()?)
             }
 
             pub fn get_best_block_hash(&self) -> Result<GetBestBlockHash> {
@@ -48,8 +47,7 @@ macro_rules! impl_client_v17__getblock {
             /// Gets a block by blockhash.
             pub fn get_block(&self, hash: &BlockHash) -> Result<Block> {
                 let json = self.get_block_verbosity_zero(hash)?;
-                let concrete: $crate::json::model::GetBlockVerbosityZero = json.try_into()?;
-                Ok(concrete.0)
+                Ok(json.block()?)
             }
 
             // FIXME(getblock): This handling of optional args is ugly as hell but because the returned json

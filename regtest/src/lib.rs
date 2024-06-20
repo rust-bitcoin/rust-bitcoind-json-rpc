@@ -397,9 +397,16 @@ impl BitcoinD {
                 let url = match &conf.wallet {
                     Some(wallet) => {
                         debug!("trying to create/load wallet: {}", wallet);
-                        if let Err(e) = client_base.create_wallet(wallet) {
-                            debug!("initial create_wallet unsuccessful, try loading instead: {:?}", e);
-                            client_base.load_wallet(wallet)?;
+                        // Debugging logic here implicitly tests `into_model` for create/load wallet.
+                        match client_base.create_wallet(wallet) {
+                            Ok(json) => {
+                                debug!("created wallet: {}", json.name());
+                            },
+                            Err(e) => {
+                                debug!("initial create_wallet unsuccessful, try loading instead: {:?}", e);
+                                let wallet = client_base.load_wallet(wallet)?.name();
+                                debug!("loaded wallet: {}", wallet);
+                            }
                         }
                         format!("{}/wallet/{}", rpc_url, wallet)
                     }

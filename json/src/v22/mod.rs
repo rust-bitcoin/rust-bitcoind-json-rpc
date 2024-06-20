@@ -3,7 +3,7 @@
 //! Structs with standard types.
 //!
 //! These structs model the types returned by the JSON-RPC API and use stdlib types (or custom
-//! types) and are specific to a specific to Bitcoin Core `v22.1`.
+//! types) and are specific to a specific to Bitcoin Core `v22`.
 //!
 //! A `x` marks methods that are implemented _and_ tested.
 //!
@@ -171,14 +171,14 @@
 mod wallet;
 
 #[doc(inline)]
-pub use self::wallet::{SendToAddress, UnloadWallet};
+pub use self::wallet::UnloadWallet;
 #[doc(inline)]
 pub use crate::{
     v17::{
         CreateWallet, GenerateToAddress, GetBalance, GetBestBlockHash, GetBlockVerbosityOne,
         GetBlockVerbosityZero, GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork,
         GetNewAddress, GetTransaction, GetTransactionDetail, GetTransactionDetailCategory,
-        GetTxOut, LoadWallet, SendRawTransaction,
+        GetTxOut, LoadWallet, SendRawTransaction, SendToAddress,
     },
     v19::{
         Bip9SoftforkInfo, Bip9SoftforkStatistics, Bip9SoftforkStatus, GetBalances, GetBalancesMine,

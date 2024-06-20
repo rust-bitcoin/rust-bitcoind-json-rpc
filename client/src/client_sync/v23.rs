@@ -47,7 +47,7 @@ crate::impl_client_v17__gettransaction!();
 #[serde(rename_all = "kebab-case")]
 pub enum AddressType {
     Legacy,
-    P2ShSegwit,
+    P2shSegwit,
     Bech32,
     Bech32m,
 }
@@ -58,7 +58,7 @@ impl fmt::Display for AddressType {
 
         let s = match *self {
             Legacy => "legacy",
-            P2ShSegwit => "p2sh-segwit",
+            P2shSegwit => "p2sh-segwit",
             Bech32 => "bech32",
             Bech32m => "bech32m",
         };

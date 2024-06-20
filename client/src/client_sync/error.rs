@@ -8,7 +8,8 @@ use bitcoin::{hex, secp256k1};
 #[derive(Debug)]
 pub enum Error {
     JsonRpc(jsonrpc::error::Error),
-    Hex(hex::HexToBytesError),
+    HexToArray(hex::HexToArrayError),
+    HexToBytes(hex::HexToBytesError),
     Json(serde_json::error::Error),
     BitcoinSerialization(bitcoin::consensus::encode::FromHexError),
     Secp256k1(secp256k1::Error),
@@ -29,8 +30,12 @@ impl From<jsonrpc::error::Error> for Error {
     fn from(e: jsonrpc::error::Error) -> Error { Error::JsonRpc(e) }
 }
 
+impl From<hex::HexToArrayError> for Error {
+    fn from(e: hex::HexToArrayError) -> Self { Self::HexToArray(e) }
+}
+
 impl From<hex::HexToBytesError> for Error {
-    fn from(e: hex::HexToBytesError) -> Error { Error::Hex(e) }
+    fn from(e: hex::HexToBytesError) -> Self { Self::HexToBytes(e) }
 }
 
 impl From<serde_json::error::Error> for Error {
@@ -59,7 +64,8 @@ impl fmt::Display for Error {
 
         match *self {
             JsonRpc(ref e) => write!(f, "JSON-RPC error: {}", e),
-            Hex(ref e) => write!(f, "hex decode error: {}", e),
+            HexToArray(ref e) => write!(f, "hex to array decode error: {}", e),
+            HexToBytes(ref e) => write!(f, "hex to bytes decode error: {}", e),
             Json(ref e) => write!(f, "JSON error: {}", e),
             BitcoinSerialization(ref e) => write!(f, "Bitcoin serialization error: {}", e),
             Secp256k1(ref e) => write!(f, "secp256k1 error: {}", e),
@@ -80,7 +86,8 @@ impl error::Error for Error {
 
         match *self {
             JsonRpc(ref e) => Some(e),
-            Hex(ref e) => Some(e),
+            HexToArray(ref e) => Some(e),
+            HexToBytes(ref e) => Some(e),
             Json(ref e) => Some(e),
             BitcoinSerialization(ref e) => Some(e),
             Secp256k1(ref e) => Some(e),

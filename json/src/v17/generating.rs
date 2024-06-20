@@ -4,9 +4,10 @@
 //!
 //! Types for methods found under the `== Generating ==` section of the API docs.
 
-mod convert;
-
+use bitcoin::{hex, BlockHash};
 use serde::{Deserialize, Serialize};
+
+use crate::model;
 
 /// Result of JSON-RPC method `generatetoaddress`.
 /// > generatetoaddress nblocks "address" ( maxtries )
@@ -22,3 +23,11 @@ pub struct GenerateToAddress(
     /// Hashes of blocks generated.
     pub Vec<String>,
 );
+
+impl GenerateToAddress {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> Result<model::GenerateToAddress, hex::HexToArrayError> {
+        let v = self.0.iter().map(|s| s.parse::<BlockHash>()).collect::<Result<Vec<_>, _>>()?;
+        Ok(model::GenerateToAddress(v))
+    }
+}

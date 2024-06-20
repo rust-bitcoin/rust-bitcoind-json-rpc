@@ -1,4 +1,4 @@
-//! Test the JSON-RPC API against `bitcoind v23.2`.
+//! Test the JSON-RPC API against `bitcoind v23`.
 
 #![cfg(feature = "v23")]
 
@@ -10,7 +10,8 @@ mod blockchain {
 
     impl_test_v17__getblockchaininfo!();
     impl_test_v17__getbestblockhash!();
-    impl_test_v22__getblock!();
+    impl_test_v17__getblock_verbosity_0!();
+    impl_test_v17__getblock_verbosity_1!();
 }
 
 // == Control ==

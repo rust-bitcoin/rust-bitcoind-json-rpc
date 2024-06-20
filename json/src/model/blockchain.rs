@@ -8,8 +8,14 @@
 use std::collections::BTreeMap;
 
 use bitcoin::address::NetworkUnchecked;
-use bitcoin::{block, Address, Block, BlockHash, CompactTarget, Network, TxOut, Weight, Work};
+use bitcoin::{
+    block, Address, Block, BlockHash, CompactTarget, Network, TxOut, Txid, Weight, Work,
+};
 use serde::{Deserialize, Serialize};
+
+/// Models the result of JSON-RPC method `getbestblockhash`.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetBestBlockHash(pub BlockHash);
 
 /// Models the result of JSON-RPC method `getblockchaininfo`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
@@ -95,7 +101,6 @@ pub struct Bip9SoftforkInfo {
 
 /// BIP-9 softfork status: one of "defined", "started", "locked_in", "active", "failed".
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
 pub enum Bip9SoftforkStatus {
     /// BIP-9 softfork status "defined".
     Defined,
@@ -138,7 +143,7 @@ pub struct GetBlockVerbosityOne {
     /// The block size.
     pub size: usize,
     /// The block size excluding witness data.
-    pub strippedsize: Option<usize>, // Weight?
+    pub stripped_size: Option<usize>, // Weight?
     /// The block weight as defined in BIP-141.
     pub weight: Weight,
     /// The block height or index.
@@ -147,22 +152,22 @@ pub struct GetBlockVerbosityOne {
     pub version: block::Version,
     /// The block version formatted in hexadecimal.
     pub version_hex: String,
-    /// The merkle root
-    pub merkleroot: String,
-    /// The transaction ids
-    pub tx: Vec<String>,
+    /// The merkle root.
+    pub merkle_root: String,
+    /// The transaction ids.
+    pub tx: Vec<Txid>,
     /// The block time expressed in UNIX epoch time.
     pub time: usize,
     /// The median block time expressed in UNIX epoch time.
     pub median_time: Option<usize>,
-    /// The nonce
+    /// The nonce.
     pub nonce: u32,
     /// The bits.
     pub bits: CompactTarget,
     /// The difficulty.
-    pub difficulty: f64, // u128?
+    pub difficulty: f64,
     /// Expected number of hashes required to produce the chain up to this block (in hex).
-    pub chain_work: String,
+    pub chain_work: Work,
     /// The number of transactions in the block.
     pub n_tx: u32,
     /// The hash of the previous block (if available).
@@ -177,7 +182,7 @@ pub struct GetTxOut {
     /// The hash of the block at the tip of the chain.
     pub best_block: BlockHash,
     /// The number of confirmations.
-    pub confirmations: u64,
+    pub confirmations: u32,
     /// The returned `TxOut` (strongly typed).
     pub tx_out: TxOut,
     /// Address that `tx_out` spends to.
@@ -185,7 +190,3 @@ pub struct GetTxOut {
     /// Coinbase or not.
     pub coinbase: bool,
 }
-
-/// Models the result of JSON-RPC method `getbestblockhash`.
-#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub struct GetBestBlockHash(pub BlockHash);

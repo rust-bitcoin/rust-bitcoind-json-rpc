@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: CC0-1.0
 
-//! The JSON-RPC API for Bitcoin Core v25.2 - wallet.
+//! The JSON-RPC API for Bitcoin Core v25 - wallet.
 //!
 //! Types for methods found under the `== Wallet ==` section of the API docs.
 
 use serde::{Deserialize, Serialize};
+
+use crate::model;
 
 /// Result of the JSON-RPC method `createwallet`.
 ///
@@ -31,6 +33,16 @@ pub struct CreateWallet {
     pub warnings: Option<Vec<String>>,
 }
 
+impl CreateWallet {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> model::CreateWallet {
+        model::CreateWallet { name: self.name, warnings: self.warnings.unwrap_or_default() }
+    }
+
+    /// Returns the created wallet name.
+    pub fn name(self) -> String { self.into_model().name }
+}
+
 /// Result of the JSON-RPC method `loadwallet`.
 ///
 /// > loadwallet "filename" ( load_on_startup )
@@ -48,4 +60,14 @@ pub struct LoadWallet {
     pub name: String,
     /// Warning messages, if any, related to loading the wallet.
     pub warnings: Option<Vec<String>>,
+}
+
+impl LoadWallet {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> model::LoadWallet {
+        model::LoadWallet { name: self.name, warnings: self.warnings.unwrap_or_default() }
+    }
+
+    /// Returns the loaded wallet name.
+    pub fn name(self) -> String { self.into_model().name }
 }
