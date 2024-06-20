@@ -1,4 +1,4 @@
-# 0.2.2 - 2024-06-21
+# 0.3.0 - 2024-06-21
 
 - Call `into_model` when creating/loading wallet.
 
