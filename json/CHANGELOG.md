@@ -1,4 +1,4 @@
-# 0.2.1 - 2024-06-21
+# 0.3.0 - 2024-06-21
 
 - Implement `into_model` on all types.
 
