@@ -86,7 +86,7 @@ dependencies = [
 
 [[package]]
 name = "bitcoind-json-rpc-client"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "bitcoin",
  "bitcoind-json-rpc-types",
@@ -98,7 +98,7 @@ dependencies = [
 
 [[package]]
 name = "bitcoind-json-rpc-types"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "bitcoin",
  "bitcoin-internals",

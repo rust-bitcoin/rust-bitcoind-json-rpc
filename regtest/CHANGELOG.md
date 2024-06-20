@@ -1,3 +1,7 @@
+# 0.2.2 - 2024-06-21
+
+- Call `into_model` when creating/loading wallet.
+
 # 0.2.1 - 2024-06-17
 
 Do various little fixes to try and make the docs on `Client` more legible, specifically to alleviate
