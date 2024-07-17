@@ -20,7 +20,7 @@ jobs:
         id: read_toolchain
         run: echo "nightly_version=$(cat nightly-version)" >> $GITHUB_OUTPUT
 
-  Stable:                       # 2 jobs, one per manifest.
+  Stable:                       # 2 jobs, one per lock file.
     name: Test - stable toolchain
     runs-on: ubuntu-latest
     strategy:
@@ -43,7 +43,7 @@ jobs:
       - name: "Run test script"
         run: ./maintainer-tools/ci/run_task.sh stable
 
-  Nightly:                      # 2 jobs, one per manifest.
+  Nightly:                      # 2 jobs, one per lock file.
     name: Test - nightly toolchain
     needs: Prepare
     runs-on: ubuntu-latest
