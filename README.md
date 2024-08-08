@@ -30,3 +30,9 @@ author's list and added my own name for accountability. All bugs are my own (tch
 
 - [rust-bitcoincore-rpcv0.19.0](https://github.com/rust-bitcoin/rust-bitcoincore-rpc)
 - [`bitcoind`](https://crates.io/crates/bitcoind)
+
+## Minimum Supported Rust Version (MSRV)
+
+This library should always compile with any combination of features on **Rust 1.63.0**.
+
+Use `Cargo-minimal.lock` to build the MSRV by copying to `Cargo.lock` and building.
