@@ -86,7 +86,7 @@ macro_rules! define_jsonrpc_minreq_client {
                 Self { inner }
             }
 
-            /// Creates a client to a bitcoind JSON-RPC server without authentication.
+            /// Creates a client to a bitcoind JSON-RPC server with authentication.
             pub fn new_with_auth(url: &str, auth: Auth) -> Result<Self> {
                 if matches!(auth, Auth::None) {
                     return Err(Error::MissingUserPassword);
