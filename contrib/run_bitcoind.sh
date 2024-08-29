@@ -23,6 +23,7 @@ COMMAND
    - stop                     Kill all bitcoind nodes using 'pkill bitcoind'.
 
 KNOWN_VERSION
+   - v27                Bitcoin Core v27.1
    - v26                Bitcoin Core v26.2
    - v25                Bitcoin Core v25.2
    - v24                Bitcoin Core v24.2
@@ -48,6 +49,7 @@ main() {
 
     case $cmd in
         all)
+            start "v27"         # 27.1
             start "v26"         # 26.2
             start "v25"         # 25.2
             start "v24"         # 24.2
@@ -82,6 +84,11 @@ start() {
     local version="$1"
 
     case $version in
+        v27)
+            local version_number="27.1"
+            local version_id="271"
+            ;;
+
         v26)
             local version_number="26.2"
             local version_id="262"
