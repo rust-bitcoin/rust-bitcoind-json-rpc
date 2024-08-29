@@ -8,11 +8,13 @@ edition = "2021"
 
 # Please note, in this crate the version features are mutally exclusive.
 #
-# - `cargo test --all-features` is the same as `cargo test --features=v26_0`
+# - `cargo test --all-features` is the same as `cargo test --features=v26_2`
 # - `cargo test --no-default-features` skips all tests.
 [features]
 # Enable the same feature in `bitcoind` and the version feature here.
 # All minor releases (but only the latest patch release).
+"26_2" = ["v26", "bitcoind/26_2"]
+"26_1" = ["v26", "bitcoind/26_1"]
 "26_0" = ["v26", "bitcoind/26_0"]
 "25_2" = ["v25", "bitcoind/25_2"]
 "25_1" = ["v25", "bitcoind/25_1"]

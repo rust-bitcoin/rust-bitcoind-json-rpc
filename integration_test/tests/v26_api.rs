@@ -1,4 +1,4 @@
-//! Test the JSON-RPC API against `bitcoind v26.0`.
+//! Test the JSON-RPC API against `bitcoind v26`.
 
 #![cfg(feature = "v26")]
 

@@ -26,7 +26,7 @@ crate::impl_client_v17__generatetoaddress!();
 
 // == Network ==
 crate::impl_client_v17__getnetworkinfo!();
-crate::impl_client_check_expected_server_version!({ [260000] });
+crate::impl_client_check_expected_server_version!({ [260000, 260100, 260200] });
 
 // == Rawtransactions ==
 crate::impl_client_v17__sendrawtransaction!();
