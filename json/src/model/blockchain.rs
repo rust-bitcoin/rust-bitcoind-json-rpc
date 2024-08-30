@@ -97,7 +97,7 @@ pub struct GetBlockchainInfo {
     /// Status of softforks in progress, maps softfork name -> [`Softfork`].
     pub softforks: BTreeMap<String, Softfork>,
     /// Any network and blockchain warnings.
-    pub warnings: String,
+    pub warnings: Vec<String>,
 }
 
 /// Status of softfork.

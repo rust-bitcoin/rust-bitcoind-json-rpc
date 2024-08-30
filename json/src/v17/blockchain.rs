@@ -346,7 +346,7 @@ impl GetBlockchainInfo {
             automatic_pruning: self.automatic_pruning,
             prune_target_size,
             softforks,
-            warnings: self.warnings,
+            warnings: vec![self.warnings],
         })
     }
 }
