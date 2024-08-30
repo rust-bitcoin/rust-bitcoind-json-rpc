@@ -90,7 +90,7 @@
 //! - [ ] `joinpsbts ["psbt",...]`
 //! - [ ] `sendrawtransaction "hexstring" ( maxfeerate maxburnamount )`
 //! - [ ] `signrawtransactionwithkey "hexstring" ["privatekey",...] ( [{"txid":"hex","vout":n,"scriptPubKey":"hex","redeemScript":"hex","witnessScript":"hex","amount":amount},...] "sighashtype" )`
-//! - [ ] `submitpackage ["rawtx",...] ( maxfeerate maxburnamount )`
+//! - [x] `submitpackage ["rawtx",...] ( maxfeerate maxburnamount )`
 //! - [ ] `testmempoolaccept ["rawtx",...] ( maxfeerate )`
 //! - [ ] `utxoupdatepsbt "psbt" ( ["",{"desc":"str","range":n or [n,n]},...] )`
 //!
@@ -180,6 +180,10 @@
 //! **== Zmq ==**
 //! - [ ] `getzmqnotifications`
 
+mod raw_transactions;
+
+#[doc(inline)]
+pub use self::raw_transactions::{SubmitPackage, SubmitPackageTxResult, SubmitPackageTxResultFees};
 #[doc(inline)]
 pub use crate::{
     v17::{
