@@ -1,5 +1,5 @@
 [workspace]
-members = ["client", "json"]
+members = ["client", "json", "jsonrpc"]
 exclude = ["integration_test", "regtest"]
 resolver = "2"
 
@@ -8,3 +8,6 @@ path = "client"
 
 [patch.crates-io.bitcoind-json-rpc-types]
 path = "json"
+
+[patch.crates-io.jsonrpc]
+path = "jsonrpc"

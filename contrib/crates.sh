@@ -2,4 +2,4 @@
 # shellcheck disable=SC2148
 
 # Crates in this workspace to test.
-CRATES=("json" "client")
+CRATES=("json" "client" "jsonrpc")
