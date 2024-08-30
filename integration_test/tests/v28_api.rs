@@ -40,6 +40,7 @@ mod raw_transactions {
     use super::*;
 
     impl_test_v17__sendrawtransaction!();
+    impl_test_v28__submitpackage!();
 }
 
 // == Wallet ==

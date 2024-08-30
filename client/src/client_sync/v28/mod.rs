@@ -30,6 +30,7 @@ crate::impl_client_check_expected_server_version!({ [280000] });
 
 // == Rawtransactions ==
 crate::impl_client_v17__sendrawtransaction!();
+crate::impl_client_v28__submitpackage!();
 
 // == Wallet ==
 crate::impl_client_v17__createwallet!();
