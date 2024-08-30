@@ -3,6 +3,7 @@
 pub mod v17;
 pub mod v19;
 pub mod v22;
+pub mod v28;
 
 /// Requires `RPC_PORT` to be in scope.
 use bitcoind::BitcoinD;
