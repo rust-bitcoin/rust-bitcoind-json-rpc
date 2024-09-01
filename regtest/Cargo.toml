@@ -35,13 +35,17 @@ anyhow = "1.0.66"
 
 # Please note, in this crate the version features are mutally exclusive.
 #
-# - `cargo test --all-features` is the same as `cargo test --features=v26_0`
-# - `cargo test --no-default-features` uses `v26_0` also.
+# - `cargo test --all-features` is the same as `cargo test --features=v27_1`
+# - `cargo test --no-default-features` uses `v27_1` also.
 [features]
 # download is not supposed to be used directly only through selecting one of the version feature
 "download" = ["bitcoin_hashes", "flate2", "tar", "minreq", "zip"]
 
 # We support all minor releases (but only the latest patch release).
+"27_1" = ["download", "27_0"]
+"27_0" = ["download", "26_2"]
+"26_2" = ["download", "26_1"]
+"26_1" = ["download", "26_0"]
 "26_0" = ["download", "25_2"]
 "25_2" = ["download", "25_1"]
 "25_1" = ["download", "25_0"]
@@ -65,7 +69,7 @@ anyhow = "1.0.66"
 
 
 [package.metadata.docs.rs]
-features = ["download", "doc", "26_0"]
+features = ["download", "doc", "26_2"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [patch.crates-io.bitcoind-json-rpc-client]

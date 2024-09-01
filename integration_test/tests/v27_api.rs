@@ -1,6 +1,6 @@
-//! Test the JSON-RPC API against `bitcoind v26`.
+//! Test the JSON-RPC API against `bitcoind v27.1`.
 
-#![cfg(feature = "v26")]
+#![cfg(feature = "v27")]
 
 use integration_test::*;
 
