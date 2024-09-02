@@ -9,18 +9,6 @@
 //!
 //! See or use the `define_jsonrpc_minreq_client!` macro to define a `Client`.
 
-/// Implements bitcoind JSON-RPC API method `getblockchaininfo`
-#[macro_export]
-macro_rules! impl_client_v17__getblockchaininfo {
-    () => {
-        impl Client {
-            pub fn get_blockchain_info(&self) -> Result<GetBlockchainInfo> {
-                self.call("getblockchaininfo", &[])
-            }
-        }
-    };
-}
-
 /// Implements bitcoind JSON-RPC API method `getbestblockhash`
 #[macro_export]
 macro_rules! impl_client_v17__getbestblockhash {
@@ -65,6 +53,18 @@ macro_rules! impl_client_v17__getblock {
                 hash: &BlockHash,
             ) -> Result<GetBlockVerbosityOne> {
                 self.call("getblock", &[into_json(hash)?, 1.into()])
+            }
+        }
+    };
+}
+
+/// Implements bitcoind JSON-RPC API method `getblockchaininfo`
+#[macro_export]
+macro_rules! impl_client_v17__getblockchaininfo {
+    () => {
+        impl Client {
+            pub fn get_blockchain_info(&self) -> Result<GetBlockchainInfo> {
+                self.call("getblockchaininfo", &[])
             }
         }
     };

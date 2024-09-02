@@ -38,6 +38,178 @@ impl GetBestBlockHash {
     pub fn block_hash(self) -> Result<BlockHash, hex::HexToArrayError> { Ok(self.into_model()?.0) }
 }
 
+/// Result of JSON-RPC method `getblock` with verbosity set to 0.
+///
+/// A string that is serialized, hex-encoded data for block 'hash'.
+///
+/// Method call: `getblock "blockhash" ( verbosity )`
+#[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
+pub struct GetBlockVerbosityZero(pub String);
+
+impl GetBlockVerbosityZero {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> Result<model::GetBlockVerbosityZero, encode::FromHexError> {
+        let block = encode::deserialize_hex(&self.0)?;
+        Ok(model::GetBlockVerbosityZero(block))
+    }
+
+    /// Converts json straight to a `bitcoin::Block`.
+    pub fn block(self) -> Result<Block, encode::FromHexError> { Ok(self.into_model()?.0) }
+}
+
+/// Result of JSON-RPC method `getblock` with verbosity set to 1.
+#[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
+pub struct GetBlockVerbosityOne {
+    /// The block hash (same as provided) in RPC call.
+    pub hash: String,
+    /// The number of confirmations, or -1 if the block is not on the main chain.
+    pub confirmations: i32,
+    /// The block size.
+    pub size: usize,
+    /// The block size excluding witness data.
+    #[serde(rename = "strippedsize")]
+    pub stripped_size: Option<usize>,
+    /// The block weight as defined in BIP-141.
+    pub weight: u64,
+    /// The block height or index.
+    pub height: usize,
+    /// The block version.
+    pub version: i32,
+    /// The block version formatted in hexadecimal.
+    #[serde(rename = "versionHex")]
+    pub version_hex: String,
+    /// The merkle root
+    #[serde(rename = "merkleroot")]
+    pub merkle_root: String,
+    /// The transaction ids
+    pub tx: Vec<String>,
+    /// The block time expressed in UNIX epoch time.
+    pub time: usize,
+    /// The median block time expressed in UNIX epoch time.
+    #[serde(rename = "mediantime")]
+    pub median_time: Option<usize>,
+    /// The nonce
+    pub nonce: u32,
+    /// The bits.
+    pub bits: String,
+    /// The difficulty.
+    pub difficulty: f64,
+    /// Expected number of hashes required to produce the chain up to this block (in hex).
+    #[serde(rename = "chainwork")]
+    pub chain_work: String,
+    /// The number of transactions in the block.
+    #[serde(rename = "nTx")]
+    pub n_tx: u32,
+    /// The hash of the previous block (if available).
+    #[serde(rename = "previousblockhash")]
+    pub previous_block_hash: Option<String>,
+    /// The hash of the next block (if available).
+    #[serde(rename = "nextblockhash")]
+    pub next_block_hash: Option<String>,
+}
+
+impl GetBlockVerbosityOne {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> Result<model::GetBlockVerbosityOne, GetBlockVerbosityOneError> {
+        use GetBlockVerbosityOneError as E;
+
+        let hash = self.hash.parse::<BlockHash>().map_err(E::Hash)?;
+        let weight = Weight::from_wu(self.weight); // TODO: Confirm this uses weight units.
+        let version = block::Version::from_consensus(self.version);
+
+        // FIXME: Is there a better way to handle the error without type annotations on `collect`?
+        let tx = self
+            .tx
+            .iter()
+            .map(|t| encode::deserialize_hex::<Txid>(t).map_err(E::Tx))
+            .collect::<Result<Vec<_>, _>>()?;
+
+        // FIXME: Is unprefixed correct?
+        let bits = CompactTarget::from_unprefixed_hex(&self.bits).map_err(E::Bits)?;
+        let chain_work = Work::from_unprefixed_hex(&self.chain_work).map_err(E::ChainWork)?;
+
+        let previous_block_hash = match self.previous_block_hash {
+            Some(hash) => Some(hash.parse::<BlockHash>().map_err(E::PreviousBlockHash)?),
+            None => None,
+        };
+        let next_block_hash = match self.next_block_hash {
+            Some(hash) => Some(hash.parse::<BlockHash>().map_err(E::NextBlockHash)?),
+            None => None,
+        };
+
+        Ok(model::GetBlockVerbosityOne {
+            hash,
+            confirmations: self.confirmations,
+            size: self.size,
+            stripped_size: self.stripped_size,
+            weight,
+            height: self.height,
+            version,
+            version_hex: self.version_hex,
+            merkle_root: self.merkle_root, // TODO: Use hash, which one depends on segwit or not
+            tx,
+            time: self.time, // TODO: Use stronger type.
+            median_time: self.median_time,
+            nonce: self.nonce,
+            bits,
+            difficulty: self.difficulty,
+            chain_work,
+            n_tx: self.n_tx,
+            previous_block_hash,
+            next_block_hash,
+        })
+    }
+}
+
+/// Error when converting a `GetBlockVerbasityOne` type into the model type.
+#[derive(Debug)]
+pub enum GetBlockVerbosityOneError {
+    /// Conversion of the transaction `hash` field failed.
+    Hash(hex::HexToArrayError),
+    /// Conversion of the transaction `hex` field failed.
+    Tx(encode::FromHexError),
+    /// Conversion of the transaction `bits` field failed.
+    Bits(UnprefixedHexError),
+    /// Conversion of the transaction `chain_work` field failed.
+    ChainWork(UnprefixedHexError),
+    /// Conversion of the transaction `previous_block_hash` field failed.
+    PreviousBlockHash(hex::HexToArrayError),
+    /// Conversion of the transaction `next_block_hash` field failed.
+    NextBlockHash(hex::HexToArrayError),
+}
+
+impl fmt::Display for GetBlockVerbosityOneError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use GetBlockVerbosityOneError::*;
+
+        match *self {
+            Hash(ref e) => write_err!(f, "conversion of the `hash` field failed"; e),
+            Tx(ref e) => write_err!(f, "conversion of the `tx` field failed"; e),
+            Bits(ref e) => write_err!(f, "conversion of the `bits` field failed"; e),
+            ChainWork(ref e) => write_err!(f, "conversion of the `chain_ork` field failed"; e),
+            PreviousBlockHash(ref e) =>
+                write_err!(f, "conversion of the `previous_block_hash` field failed"; e),
+            NextBlockHash(ref e) =>
+                write_err!(f, "conversion of the `next_block_hash` field failed"; e),
+        }
+    }
+}
+
+impl std::error::Error for GetBlockVerbosityOneError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        use GetBlockVerbosityOneError::*;
+
+        match *self {
+            Hash(ref e) => Some(e),
+            Tx(ref e) => Some(e),
+            Bits(ref e) => Some(e),
+            ChainWork(ref e) => Some(e),
+            PreviousBlockHash(ref e) => Some(e),
+            NextBlockHash(ref e) => Some(e),
+        }
+    }
+}
+
 /// Result of JSON-RPC method `getblockchaininfo`.
 ///
 /// Method call: `getblockchaininfo`
@@ -216,178 +388,6 @@ impl std::error::Error for GetBlockchainInfoError {
             Chain(ref e) => Some(e),
             BestBlockHash(ref e) => Some(e),
             ChainWork(ref e) => Some(e),
-        }
-    }
-}
-
-/// Result of JSON-RPC method `getblock` with verbosity set to 0.
-///
-/// A string that is serialized, hex-encoded data for block 'hash'.
-///
-/// Method call: `getblock "blockhash" ( verbosity )`
-#[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
-pub struct GetBlockVerbosityZero(pub String);
-
-impl GetBlockVerbosityZero {
-    /// Converts version specific type to a version in-specific, more strongly typed type.
-    pub fn into_model(self) -> Result<model::GetBlockVerbosityZero, encode::FromHexError> {
-        let block = encode::deserialize_hex(&self.0)?;
-        Ok(model::GetBlockVerbosityZero(block))
-    }
-
-    /// Converts json straight to a `bitcoin::Block`.
-    pub fn block(self) -> Result<Block, encode::FromHexError> { Ok(self.into_model()?.0) }
-}
-
-/// Result of JSON-RPC method `getblock` with verbosity set to 1.
-#[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
-pub struct GetBlockVerbosityOne {
-    /// The block hash (same as provided) in RPC call.
-    pub hash: String,
-    /// The number of confirmations, or -1 if the block is not on the main chain.
-    pub confirmations: i32,
-    /// The block size.
-    pub size: usize,
-    /// The block size excluding witness data.
-    #[serde(rename = "strippedsize")]
-    pub stripped_size: Option<usize>,
-    /// The block weight as defined in BIP-141.
-    pub weight: u64,
-    /// The block height or index.
-    pub height: usize,
-    /// The block version.
-    pub version: i32,
-    /// The block version formatted in hexadecimal.
-    #[serde(rename = "versionHex")]
-    pub version_hex: String,
-    /// The merkle root
-    #[serde(rename = "merkleroot")]
-    pub merkle_root: String,
-    /// The transaction ids
-    pub tx: Vec<String>,
-    /// The block time expressed in UNIX epoch time.
-    pub time: usize,
-    /// The median block time expressed in UNIX epoch time.
-    #[serde(rename = "mediantime")]
-    pub median_time: Option<usize>,
-    /// The nonce
-    pub nonce: u32,
-    /// The bits.
-    pub bits: String,
-    /// The difficulty.
-    pub difficulty: f64,
-    /// Expected number of hashes required to produce the chain up to this block (in hex).
-    #[serde(rename = "chainwork")]
-    pub chain_work: String,
-    /// The number of transactions in the block.
-    #[serde(rename = "nTx")]
-    pub n_tx: u32,
-    /// The hash of the previous block (if available).
-    #[serde(rename = "previousblockhash")]
-    pub previous_block_hash: Option<String>,
-    /// The hash of the next block (if available).
-    #[serde(rename = "nextblockhash")]
-    pub next_block_hash: Option<String>,
-}
-
-impl GetBlockVerbosityOne {
-    /// Converts version specific type to a version in-specific, more strongly typed type.
-    pub fn into_model(self) -> Result<model::GetBlockVerbosityOne, GetBlockVerbosityOneError> {
-        use GetBlockVerbosityOneError as E;
-
-        let hash = self.hash.parse::<BlockHash>().map_err(E::Hash)?;
-        let weight = Weight::from_wu(self.weight); // TODO: Confirm this uses weight units.
-        let version = block::Version::from_consensus(self.version);
-
-        // FIXME: Is there a better way to handle the error without type annotations on `collect`?
-        let tx = self
-            .tx
-            .iter()
-            .map(|t| encode::deserialize_hex::<Txid>(t).map_err(E::Tx))
-            .collect::<Result<Vec<_>, _>>()?;
-
-        // FIXME: Is unprefixed correct?
-        let bits = CompactTarget::from_unprefixed_hex(&self.bits).map_err(E::Bits)?;
-        let chain_work = Work::from_unprefixed_hex(&self.chain_work).map_err(E::ChainWork)?;
-
-        let previous_block_hash = match self.previous_block_hash {
-            Some(hash) => Some(hash.parse::<BlockHash>().map_err(E::PreviousBlockHash)?),
-            None => None,
-        };
-        let next_block_hash = match self.next_block_hash {
-            Some(hash) => Some(hash.parse::<BlockHash>().map_err(E::NextBlockHash)?),
-            None => None,
-        };
-
-        Ok(model::GetBlockVerbosityOne {
-            hash,
-            confirmations: self.confirmations,
-            size: self.size,
-            stripped_size: self.stripped_size,
-            weight,
-            height: self.height,
-            version,
-            version_hex: self.version_hex,
-            merkle_root: self.merkle_root, // TODO: Use hash, which one depends on segwit or not
-            tx,
-            time: self.time, // TODO: Use stronger type.
-            median_time: self.median_time,
-            nonce: self.nonce,
-            bits,
-            difficulty: self.difficulty,
-            chain_work,
-            n_tx: self.n_tx,
-            previous_block_hash,
-            next_block_hash,
-        })
-    }
-}
-
-/// Error when converting a `GetBlockVerbasityOne` type into the model type.
-#[derive(Debug)]
-pub enum GetBlockVerbosityOneError {
-    /// Conversion of the transaction `hash` field failed.
-    Hash(hex::HexToArrayError),
-    /// Conversion of the transaction `hex` field failed.
-    Tx(encode::FromHexError),
-    /// Conversion of the transaction `bits` field failed.
-    Bits(UnprefixedHexError),
-    /// Conversion of the transaction `chain_work` field failed.
-    ChainWork(UnprefixedHexError),
-    /// Conversion of the transaction `previous_block_hash` field failed.
-    PreviousBlockHash(hex::HexToArrayError),
-    /// Conversion of the transaction `next_block_hash` field failed.
-    NextBlockHash(hex::HexToArrayError),
-}
-
-impl fmt::Display for GetBlockVerbosityOneError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use GetBlockVerbosityOneError::*;
-
-        match *self {
-            Hash(ref e) => write_err!(f, "conversion of the `hash` field failed"; e),
-            Tx(ref e) => write_err!(f, "conversion of the `tx` field failed"; e),
-            Bits(ref e) => write_err!(f, "conversion of the `bits` field failed"; e),
-            ChainWork(ref e) => write_err!(f, "conversion of the `chain_ork` field failed"; e),
-            PreviousBlockHash(ref e) =>
-                write_err!(f, "conversion of the `previous_block_hash` field failed"; e),
-            NextBlockHash(ref e) =>
-                write_err!(f, "conversion of the `next_block_hash` field failed"; e),
-        }
-    }
-}
-
-impl std::error::Error for GetBlockVerbosityOneError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        use GetBlockVerbosityOneError::*;
-
-        match *self {
-            Hash(ref e) => Some(e),
-            Tx(ref e) => Some(e),
-            Bits(ref e) => Some(e),
-            ChainWork(ref e) => Some(e),
-            PreviousBlockHash(ref e) => Some(e),
-            NextBlockHash(ref e) => Some(e),
         }
     }
 }

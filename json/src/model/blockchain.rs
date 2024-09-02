@@ -17,6 +17,53 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GetBestBlockHash(pub BlockHash);
 
+/// Models the result of JSON-RPC method `getblock` with verbosity set to 0.
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct GetBlockVerbosityZero(pub Block);
+
+/// Models the result of JSON-RPC method `getblock` with verbosity set to 1.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetBlockVerbosityOne {
+    /// The block hash (same as provided) in RPC call.
+    pub hash: BlockHash,
+    /// The number of confirmations, or -1 if the block is not on the main chain.
+    pub confirmations: i32,
+    /// The block size.
+    pub size: usize,
+    /// The block size excluding witness data.
+    pub stripped_size: Option<usize>, // Weight?
+    /// The block weight as defined in BIP-141.
+    pub weight: Weight,
+    /// The block height or index.
+    pub height: usize,
+    /// The block version.
+    pub version: block::Version,
+    /// The block version formatted in hexadecimal.
+    pub version_hex: String,
+    /// The merkle root.
+    pub merkle_root: String,
+    /// The transaction ids.
+    pub tx: Vec<Txid>,
+    /// The block time expressed in UNIX epoch time.
+    pub time: usize,
+    /// The median block time expressed in UNIX epoch time.
+    pub median_time: Option<usize>,
+    /// The nonce.
+    pub nonce: u32,
+    /// The bits.
+    pub bits: CompactTarget,
+    /// The difficulty.
+    pub difficulty: f64,
+    /// Expected number of hashes required to produce the chain up to this block (in hex).
+    pub chain_work: Work,
+    /// The number of transactions in the block.
+    pub n_tx: u32,
+    /// The hash of the previous block (if available).
+    pub previous_block_hash: Option<BlockHash>,
+    /// The hash of the next block (if available).
+    pub next_block_hash: Option<BlockHash>,
+}
+
 /// Models the result of JSON-RPC method `getblockchaininfo`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GetBlockchainInfo {
@@ -127,53 +174,6 @@ pub struct Bip9SoftforkStatistics {
     pub count: u32,
     /// `false` if there are not enough blocks left in this period to pass activation threshold.
     pub possible: Option<bool>,
-}
-
-/// Models the result of JSON-RPC method `getblock` with verbosity set to 0.
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
-pub struct GetBlockVerbosityZero(pub Block);
-
-/// Models the result of JSON-RPC method `getblock` with verbosity set to 1.
-#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub struct GetBlockVerbosityOne {
-    /// The block hash (same as provided) in RPC call.
-    pub hash: BlockHash,
-    /// The number of confirmations, or -1 if the block is not on the main chain.
-    pub confirmations: i32,
-    /// The block size.
-    pub size: usize,
-    /// The block size excluding witness data.
-    pub stripped_size: Option<usize>, // Weight?
-    /// The block weight as defined in BIP-141.
-    pub weight: Weight,
-    /// The block height or index.
-    pub height: usize,
-    /// The block version.
-    pub version: block::Version,
-    /// The block version formatted in hexadecimal.
-    pub version_hex: String,
-    /// The merkle root.
-    pub merkle_root: String,
-    /// The transaction ids.
-    pub tx: Vec<Txid>,
-    /// The block time expressed in UNIX epoch time.
-    pub time: usize,
-    /// The median block time expressed in UNIX epoch time.
-    pub median_time: Option<usize>,
-    /// The nonce.
-    pub nonce: u32,
-    /// The bits.
-    pub bits: CompactTarget,
-    /// The difficulty.
-    pub difficulty: f64,
-    /// Expected number of hashes required to produce the chain up to this block (in hex).
-    pub chain_work: Work,
-    /// The number of transactions in the block.
-    pub n_tx: u32,
-    /// The hash of the previous block (if available).
-    pub previous_block_hash: Option<BlockHash>,
-    /// The hash of the next block (if available).
-    pub next_block_hash: Option<BlockHash>,
 }
 
 /// Models the result of JSON-RPC method `gettxout`.

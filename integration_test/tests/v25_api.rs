@@ -8,10 +8,10 @@ use integration_test::*;
 mod blockchain {
     use super::*;
 
-    impl_test_v17__getblockchaininfo!();
     impl_test_v17__getbestblockhash!();
     impl_test_v17__getblock_verbosity_0!();
     impl_test_v17__getblock_verbosity_1!();
+    impl_test_v17__getblockchaininfo!();
 }
 
 // == Control ==

@@ -5,19 +5,6 @@
 //! Specifically this is methods found under the `== Blockchain ==` section of the
 //! API docs of `bitcoind v0.17.1`.
 
-/// Requires `Client` to be in scope and to implement `get_blockchain_info`.
-#[macro_export]
-macro_rules! impl_test_v17__getblockchaininfo {
-    () => {
-        #[test]
-        fn get_blockchain_info() {
-            let bitcoind = $crate::bitcoind_no_wallet();
-            let json = bitcoind.client.get_blockchain_info().expect("getblockchaininfo");
-            assert!(json.into_model().is_ok());
-        }
-    };
-}
-
 /// Requires `Client` to be in scope and to implement `get_best_block_hash`.
 #[macro_export]
 macro_rules! impl_test_v17__getbestblockhash {
@@ -77,6 +64,19 @@ macro_rules! impl_test_v17__getblock_verbosity_2 {
 
             let json = client.get_block_verbosity_two(&block_hash).expect("getblock 2");
             json.into_model().unwrap();
+        }
+    };
+}
+
+/// Requires `Client` to be in scope and to implement `get_blockchain_info`.
+#[macro_export]
+macro_rules! impl_test_v17__getblockchaininfo {
+    () => {
+        #[test]
+        fn get_blockchain_info() {
+            let bitcoind = $crate::bitcoind_no_wallet();
+            let json = bitcoind.client.get_blockchain_info().expect("getblockchaininfo");
+            assert!(json.into_model().is_ok());
         }
     };
 }
