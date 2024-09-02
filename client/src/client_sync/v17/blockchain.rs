@@ -45,10 +45,7 @@ macro_rules! impl_client_v17__getblock {
                 self.call("getblock", &[into_json(hash)?, 0.into()])
             }
 
-            pub fn get_block_verbosity_one(
-                &self,
-                hash: BlockHash,
-            ) -> Result<GetBlockVerbosityOne> {
+            pub fn get_block_verbosity_one(&self, hash: BlockHash) -> Result<GetBlockVerbosityOne> {
                 self.call("getblock", &[into_json(hash)?, 1.into()])
             }
         }
@@ -62,6 +59,112 @@ macro_rules! impl_client_v17__getblockchaininfo {
         impl Client {
             pub fn get_blockchain_info(&self) -> Result<GetBlockchainInfo> {
                 self.call("getblockchaininfo", &[])
+            }
+        }
+    };
+}
+
+/// Implements bitcoind JSON-RPC API method `getblockcount`
+#[macro_export]
+macro_rules! impl_client_v17__getblockcount {
+    () => {
+        impl Client {
+            pub fn get_block_count(&self) -> Result<GetBlockCount> {
+                self.call("getblockcount", &[])
+            }
+        }
+    };
+}
+
+/// Implements bitcoind JSON-RPC API method `getblockhash`
+#[macro_export]
+macro_rules! impl_client_v17__getblockhash {
+    () => {
+        impl Client {
+            pub fn get_block_hash(&self, height: u64) -> Result<GetBlockHash> {
+                self.call("getblockhash", &[into_json(height)?])
+            }
+        }
+    };
+}
+
+/// Implements bitcoind JSON-RPC API method `getblockheader`
+#[macro_export]
+macro_rules! impl_client_v17__getblockheader {
+    () => {
+        impl Client {
+            pub fn get_block_header(&self, hash: &BlockHash) -> Result<GetBlockHeader> {
+                self.call("getblockheader", &[into_json(hash)?, into_json(false)?])
+            }
+
+            // This is the same as calling getblockheader with verbose==true.
+            pub fn get_block_header_verbose(
+                &self,
+                hash: &BlockHash,
+            ) -> Result<GetBlockHeaderVerbose> {
+                self.call("getblockheader", &[into_json(hash)?])
+            }
+        }
+    };
+}
+
+/// Implements bitcoind JSON-RPC API method `getblockstats`
+#[macro_export]
+macro_rules! impl_client_v17__getblockstats {
+    () => {
+        impl Client {
+            pub fn get_block_stats_by_height(&self, height: u32) -> Result<GetBlockStats> {
+                self.call("getblockstats", &[into_json(height)?])
+            }
+
+            pub fn get_block_stats_by_block_hash(&self, hash: &BlockHash) -> Result<GetBlockStats> {
+                self.call("getblockstats", &[into_json(hash)?])
+            }
+        }
+    };
+}
+
+/// Implements bitcoind JSON-RPC API method `getchaintips`
+#[macro_export]
+macro_rules! impl_client_v17__getchaintips {
+    () => {
+        impl Client {
+            pub fn get_chain_tips(&self) -> Result<GetChainTips> { self.call("getchaintips", &[]) }
+        }
+    };
+}
+
+/// Implements bitcoind JSON-RPC API method `getchaintxstats`
+#[macro_export]
+macro_rules! impl_client_v17__getchaintxstats {
+    () => {
+        impl Client {
+            pub fn get_chain_tx_stats(&self) -> Result<GetChainTxStats> {
+                self.call("getchaintxstats", &[])
+            }
+        }
+    };
+}
+
+/// Implements bitcoind JSON-RPC API method `getdifficulty`
+#[macro_export]
+macro_rules! impl_client_v17__getdifficulty {
+    () => {
+        impl Client {
+            pub fn get_difficulty(&self) -> Result<GetDifficulty> {
+                self.call("getdifficulty", &[])
+            }
+        }
+    };
+}
+
+/// Implements bitcoind JSON-RPC API method `getmempoolancestors`
+#[macro_export]
+macro_rules! impl_client_v17__getmempoolancestors {
+    () => {
+        impl Client {
+            pub fn get_mempool_ancestors(&self, txid: Txid) -> Result<GetMempoolAncestors> {
+                self.call("getmempoolancestors", &[into_json(txid)?])
             }
         }
     };

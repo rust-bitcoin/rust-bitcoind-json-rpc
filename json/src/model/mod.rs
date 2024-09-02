@@ -26,9 +26,11 @@ mod zmq;
 #[doc(inline)]
 pub use self::{
     blockchain::{
-        Bip9SoftforkInfo, Bip9SoftforkStatistics, Bip9SoftforkStatus, GetBestBlockHash,
-        GetBlockVerbosityOne, GetBlockVerbosityZero, GetBlockchainInfo, GetTxOut, Softfork,
-        SoftforkType,
+        Bip9SoftforkInfo, Bip9SoftforkStatistics, Bip9SoftforkStatus, ChainTips, ChainTipsStatus,
+        GetBestBlockHash, GetBlockCount, GetBlockHash, GetBlockHeader, GetBlockHeaderVerbose,
+        GetBlockStats, GetBlockVerbosityOne, GetBlockVerbosityZero, GetBlockchainInfo,
+        GetChainTips, GetChainTxStats, GetDifficulty, GetMempoolAncestors,
+        GetMempoolAncestorsVerbose, GetTxOut, Softfork, SoftforkType,
     },
     generating::GenerateToAddress,
     network::{GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork},
