@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: CC0-1.0
 
-//! A JSON-RPC client for testing against Bitcoin Core `v27`.
+//! A JSON-RPC client for testing against Bitcoin Core `v28`.
 //!
 //! We ignore option arguments unless they effect the shape of the returned JSON data.
 
@@ -10,7 +10,7 @@ use bitcoin::{Amount, Block, BlockHash, Txid};
 use crate::client_sync::{handle_defaults, into_json};
 use crate::json::v28::*;
 
-crate::define_jsonrpc_minreq_client!("v27");
+crate::define_jsonrpc_minreq_client!("v28");
 
 // == Blockchain ==
 crate::impl_client_v17__getblockchaininfo!();
@@ -26,7 +26,7 @@ crate::impl_client_v17__generatetoaddress!();
 
 // == Network ==
 crate::impl_client_v17__getnetworkinfo!();
-crate::impl_client_check_expected_server_version!({ [270000, 270100] });
+crate::impl_client_check_expected_server_version!({ [280000] });
 
 // == Rawtransactions ==
 crate::impl_client_v17__sendrawtransaction!();
