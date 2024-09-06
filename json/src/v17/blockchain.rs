@@ -161,7 +161,7 @@ impl GetBlockVerbosityOne {
     }
 }
 
-/// Error when converting a `GetBlockVerbasityOne` type into the model type.
+/// Error when converting a `GetBlockVerbosityOne` type into the model type.
 #[derive(Debug)]
 pub enum GetBlockVerbosityOneError {
     /// Conversion of the transaction `hash` field failed.
