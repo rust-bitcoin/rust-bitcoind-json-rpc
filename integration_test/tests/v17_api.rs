@@ -18,7 +18,10 @@ mod blockchain {
 mod control {
     use super::*;
 
+    impl_test_v17__getmemoryinfo!();
+    impl_test_v17__logging!();
     impl_test_v17__stop!();
+    impl_test_v17__uptime!();
 }
 
 // == Generating ==
