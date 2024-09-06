@@ -53,11 +53,7 @@ impl GetBalances {
     /// Converts version specific type to a version in-specific, more strongly typed type.
     pub fn into_model(self) -> Result<model::GetBalances, ParseAmountError> {
         let mine = self.mine.into_model()?;
-        // FIXME: Use combinators instead of matching like a noob.
-        let watch_only = match self.watch_only {
-            Some(watch_only) => Some(watch_only.into_model()?),
-            None => None,
-        };
+        let watch_only = self.watch_only.map(|watch_only| watch_only.into_model()).transpose()?;
 
         Ok(model::GetBalances { mine, watch_only })
     }
@@ -69,11 +65,7 @@ impl GetBalancesMine {
         let trusted = Amount::from_btc(self.trusted)?;
         let untrusted_pending = Amount::from_btc(self.untrusted_pending)?;
         let immature = Amount::from_btc(self.immature)?;
-        // FIXME: Use combinators instead of matching like a noob.
-        let used = match self.used {
-            Some(used) => Some(Amount::from_btc(used)?),
-            None => None,
-        };
+        let used = self.used.map(Amount::from_btc).transpose()?;
 
         Ok(model::GetBalancesMine { trusted, untrusted_pending, immature, used })
     }
