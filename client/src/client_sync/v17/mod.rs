@@ -27,7 +27,10 @@ crate::impl_client_v17__getblock!();
 crate::impl_client_v17__gettxout!();
 
 // == Control ==
+crate::impl_client_v17__getmemoryinfo!();
+crate::impl_client_v17__logging!();
 crate::impl_client_v17__stop!();
+crate::impl_client_v17__uptime!();
 
 // == Generating ==
 crate::impl_client_v17__generatetoaddress!();

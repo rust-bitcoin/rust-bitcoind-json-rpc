@@ -34,11 +34,11 @@
 //! - [ ] `verifytxoutproof "proof"`
 //!
 //! **== Control ==**
-//! - [ ] `getmemoryinfo ("mode")`
-//! - [ ] `help ( "command" )`
-//! - [ ] `logging ( <include> <exclude> )`
+//! - [x] `getmemoryinfo ("mode")`
+//! - [-] `help ( "command" )`
+//! - [x] `logging ( <include> <exclude> )`
 //! - [x] `stop`
-//! - [ ] `uptime`
+//! - [x] `uptime`
 //!
 //! **== Generating ==**
 //! - [x] `generate nblocks ( maxtries )`
@@ -169,6 +169,7 @@ pub use self::{
         Bip9Softfork, Bip9SoftforkStatus, GetBestBlockHash, GetBlockVerbosityOne,
         GetBlockVerbosityZero, GetBlockchainInfo, GetTxOut, ScriptPubkey, Softfork, SoftforkReject,
     },
+    control::{GetMemoryInfoStats, Locked, Logging, Uptime},
     generating::{Generate, GenerateToAddress},
     network::{GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork},
     raw_transactions::SendRawTransaction,
