@@ -146,11 +146,7 @@ impl SendToAddress {
     /// Converts version specific type to a version in-specific, more strongly typed type.
     pub fn into_model(self) -> Result<model::SendToAddress, hex::HexToArrayError> {
         let txid = self.0.parse::<Txid>()?;
-        Ok(model::SendToAddress {
-            txid,
-            // FIXME: Is this acceptable?
-            fee_reason: "".to_string(),
-        })
+        Ok(model::SendToAddress { txid })
     }
 
     /// Converts json straight to a `bitcoin::Txid`.
@@ -171,13 +167,8 @@ pub struct GetTransaction {
     pub amount: f64,
     pub fee: Option<f64>,
     pub confirmations: u32,
-    // FIXME: The docs say these two fields should be here but it is not returned.
-    //        Is it worth patching Core for a version this old?
-    //
-    // #[serde(rename = "blockhash")]
-    // pub block_hash: String,
-    // #[serde(rename = "blockindex")]
-    // pub block_index: u64,
+    // The docs say there should be two more fields: `blockhash` and `blockindex` but integration
+    // test fails if we add them i.e., they are not returned by `v0.17.1`.
     pub txid: String,
     pub time: u64,
     #[serde(rename = "timereceived")]

@@ -27,10 +27,6 @@ pub struct GetNetworkInfo {
     pub time_offset: isize,
     /// The total number of connections.
     pub connections: usize,
-    /// The number of inbound connections.
-    pub connections_in: usize,
-    /// The number of outbound connections.
-    pub connections_out: usize,
     /// Whether p2p networking is enabled.
     pub network_active: bool,
     /// Information per network.
@@ -42,7 +38,7 @@ pub struct GetNetworkInfo {
     /// List of local addresses.
     pub local_addresses: Vec<GetNetworkInfoAddress>,
     /// Any network and blockchain warnings.
-    pub warnings: String, // FIXME: I rekon this is wrong.
+    pub warnings: String,
 }
 
 /// Part of the result of the JSON-RPC method `getnetworkinfo` (information per network).

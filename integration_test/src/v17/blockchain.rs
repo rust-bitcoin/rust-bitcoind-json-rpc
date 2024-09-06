@@ -32,7 +32,7 @@ macro_rules! impl_test_v17__getblock_verbosity_0 {
             let bitcoind = $crate::bitcoind_no_wallet();
             let block_hash = best_block_hash();
 
-            let json = bitcoind.client.get_block_verbosity_zero(&block_hash).expect("getblock 0");
+            let json = bitcoind.client.get_block_verbosity_zero(block_hash).expect("getblock 0");
             json.into_model().unwrap();
         }
     };
@@ -47,7 +47,7 @@ macro_rules! impl_test_v17__getblock_verbosity_1 {
             let bitcoind = $crate::bitcoind_no_wallet();
             let block_hash = best_block_hash();
 
-            let json = bitcoind.client.get_block_verbosity_one(&block_hash).expect("getblock 1");
+            let json = bitcoind.client.get_block_verbosity_one(block_hash).expect("getblock 1");
             json.into_model().unwrap();
         }
     };
@@ -62,7 +62,7 @@ macro_rules! impl_test_v17__getblock_verbosity_2 {
             let bitcoind = $crate::bitcoind_no_wallet();
             let block_hash = best_block_hash();
 
-            let json = client.get_block_verbosity_two(&block_hash).expect("getblock 2");
+            let json = client.get_block_verbosity_two(block_hash).expect("getblock 2");
             json.into_model().unwrap();
         }
     };
