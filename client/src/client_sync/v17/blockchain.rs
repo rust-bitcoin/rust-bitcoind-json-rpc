@@ -33,7 +33,7 @@ macro_rules! impl_client_v17__getblock {
     () => {
         impl Client {
             /// Gets a block by blockhash.
-            pub fn get_block(&self, hash: &BlockHash) -> Result<Block> {
+            pub fn get_block(&self, hash: BlockHash) -> Result<Block> {
                 let json = self.get_block_verbosity_zero(hash)?;
                 Ok(json.block()?)
             }
@@ -43,14 +43,14 @@ macro_rules! impl_client_v17__getblock {
 
             pub fn get_block_verbosity_zero(
                 &self,
-                hash: &BlockHash,
+                hash: BlockHash,
             ) -> Result<GetBlockVerbosityZero> {
                 self.call("getblock", &[into_json(hash)?, 0.into()])
             }
 
             pub fn get_block_verbosity_one(
                 &self,
-                hash: &BlockHash,
+                hash: BlockHash,
             ) -> Result<GetBlockVerbosityOne> {
                 self.call("getblock", &[into_json(hash)?, 1.into()])
             }
