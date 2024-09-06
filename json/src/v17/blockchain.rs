@@ -340,7 +340,6 @@ impl GetBlockchainInfo {
     }
 }
 
-// FIXME: Me mightn't need this.
 impl Bip9SoftforkStatus {
     /// Converts version specific type to a version in-specific, more strongly typed type.
     pub fn into_model(self) -> model::Bip9SoftforkStatus {
