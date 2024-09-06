@@ -45,10 +45,7 @@ macro_rules! impl_client_v17__getblock {
                 self.call("getblock", &[into_json(hash)?, 0.into()])
             }
 
-            pub fn get_block_verbosity_one(
-                &self,
-                hash: BlockHash,
-            ) -> Result<GetBlockVerbosityOne> {
+            pub fn get_block_verbosity_one(&self, hash: BlockHash) -> Result<GetBlockVerbosityOne> {
                 self.call("getblock", &[into_json(hash)?, 1.into()])
             }
         }
