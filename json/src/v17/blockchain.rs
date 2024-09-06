@@ -117,7 +117,6 @@ impl GetBlockVerbosityOne {
         let weight = Weight::from_wu(self.weight); // TODO: Confirm this uses weight units.
         let version = block::Version::from_consensus(self.version);
 
-        // FIXME: Is there a better way to handle the error without type annotations on `collect`?
         let tx = self
             .tx
             .iter()
