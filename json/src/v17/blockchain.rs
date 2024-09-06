@@ -123,7 +123,6 @@ impl GetBlockVerbosityOne {
             .map(|t| encode::deserialize_hex::<Txid>(t).map_err(E::Tx))
             .collect::<Result<Vec<_>, _>>()?;
 
-        // FIXME: Is unprefixed correct?
         let bits = CompactTarget::from_unprefixed_hex(&self.bits).map_err(E::Bits)?;
         let chain_work = Work::from_unprefixed_hex(&self.chain_work).map_err(E::ChainWork)?;
 
@@ -316,7 +315,6 @@ impl GetBlockchainInfo {
         let chain = Network::from_core_arg(&self.chain).map_err(E::Chain)?;
         let best_block_hash =
             self.best_block_hash.parse::<BlockHash>().map_err(E::BestBlockHash)?;
-        // FIXME: Is unprefixed correct?
         let chain_work = Work::from_unprefixed_hex(&self.chain_work).map_err(E::ChainWork)?;
 
         let softforks = BTreeMap::new(); // TODO: Handle softforks stuff.
