@@ -8,7 +8,7 @@ authors = [
     "Tobin C. Harding <me@tobin.cc>"
 ]
 license = "CC0-1.0"
-repository = "https://github.com/tcharding/rust-bitcoind-json-rpc"
+repository = "https://github.com/rust-bitcoin/rust-bitcoind-json-rpc"
 description = "Bitcoin Core JSON-RPC client"
 categories = ["cryptography::cryptocurrencies"]
 keywords = ["bitcoin", "bitcoind", "json-rpc"]
