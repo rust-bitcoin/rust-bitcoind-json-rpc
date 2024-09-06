@@ -26,6 +26,7 @@ mod generating {
     use super::*;
 
     impl_test_v17__generatetoaddress!();
+    impl_test_v17__generate!();
 }
 
 // == Network ==

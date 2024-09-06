@@ -31,6 +31,7 @@ crate::impl_client_v17__stop!();
 
 // == Generating ==
 crate::impl_client_v17__generatetoaddress!();
+crate::impl_client_v17__generate!();
 
 // == Network ==
 crate::impl_client_v17__getnetworkinfo!();

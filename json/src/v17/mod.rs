@@ -41,7 +41,7 @@
 //! - [ ] `uptime`
 //!
 //! **== Generating ==**
-//! - [ ] `generate nblocks ( maxtries )`
+//! - [x] `generate nblocks ( maxtries )`
 //! - [x] `generatetoaddress nblocks address (maxtries)`
 //!
 //! **== Mining ==**
@@ -169,7 +169,7 @@ pub use self::{
         Bip9Softfork, Bip9SoftforkStatus, GetBestBlockHash, GetBlockVerbosityOne,
         GetBlockVerbosityZero, GetBlockchainInfo, GetTxOut, ScriptPubkey, Softfork, SoftforkReject,
     },
-    generating::GenerateToAddress,
+    generating::{Generate, GenerateToAddress},
     network::{GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork},
     raw_transactions::SendRawTransaction,
     wallet::{

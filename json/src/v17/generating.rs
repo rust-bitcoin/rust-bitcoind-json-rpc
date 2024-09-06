@@ -9,7 +9,28 @@ use serde::{Deserialize, Serialize};
 
 use crate::model;
 
+/// Result of JSON-RPC method `generate`.
+///
+/// > generate nblocks ( maxtries )
+/// >
+/// > Mine up to nblocks blocks immediately (before the RPC call returns) to an address in the wallet.
+/// >
+/// > Arguments:
+/// > 1. nblocks      (numeric, required) How many blocks are generated immediately.
+/// > 2. maxtries     (numeric, optional) How many iterations to try (default = 1000000).
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct Generate(Vec<String>);
+
+impl Generate {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> Result<model::Generate, hex::HexToArrayError> {
+        let v = self.0.iter().map(|s| s.parse::<BlockHash>()).collect::<Result<Vec<_>, _>>()?;
+        Ok(model::Generate(v))
+    }
+}
+
 /// Result of JSON-RPC method `generatetoaddress`.
+///
 /// > generatetoaddress nblocks "address" ( maxtries )
 /// >
 /// > Mine blocks immediately to a specified address (before the RPC call returns)

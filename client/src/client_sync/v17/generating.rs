@@ -24,3 +24,15 @@ macro_rules! impl_client_v17__generatetoaddress {
         }
     };
 }
+
+/// Implements bitcoind JSON-RPC API method `generate`
+#[macro_export]
+macro_rules! impl_client_v17__generate {
+    () => {
+        impl Client {
+            pub fn generate(&self, nblocks: usize) -> Result<Generate> {
+                self.call("generate", &[nblocks.into()])
+            }
+        }
+    };
+}

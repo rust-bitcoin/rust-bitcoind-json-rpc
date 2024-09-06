@@ -30,7 +30,7 @@ pub use self::{
         GetBlockVerbosityOne, GetBlockVerbosityZero, GetBlockchainInfo, GetTxOut, Softfork,
         SoftforkType,
     },
-    generating::GenerateToAddress,
+    generating::{Generate, GenerateToAddress},
     network::{GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork},
     raw_transactions::SendRawTransaction,
     wallet::{
