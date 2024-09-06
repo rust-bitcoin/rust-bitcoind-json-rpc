@@ -99,8 +99,6 @@ impl GetNetworkInfo {
             local_relay: self.local_relay,
             time_offset: self.time_offset,
             connections: self.connections,
-            connections_in: 0,  // FIXME: Can we do better than this?
-            connections_out: 0, // FIXME: Can we do better than this?
             network_active: self.network_active,
             networks: self.networks.into_iter().map(|j| j.into_model()).collect(),
             relay_fee,
