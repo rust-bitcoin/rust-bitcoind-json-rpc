@@ -83,8 +83,6 @@ pub struct GetNewAddress(pub Address<NetworkUnchecked>);
 pub struct SendToAddress {
     /// The transaction id.
     pub txid: Txid,
-    /// The transaction fee reason.
-    pub fee_reason: String,
 }
 
 /// Models the result of JSON-RPC method `gettransaction`.

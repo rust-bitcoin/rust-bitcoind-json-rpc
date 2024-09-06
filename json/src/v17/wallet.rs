@@ -146,11 +146,7 @@ impl SendToAddress {
     /// Converts version specific type to a version in-specific, more strongly typed type.
     pub fn into_model(self) -> Result<model::SendToAddress, hex::HexToArrayError> {
         let txid = self.0.parse::<Txid>()?;
-        Ok(model::SendToAddress {
-            txid,
-            // FIXME: Is this acceptable?
-            fee_reason: "".to_string(),
-        })
+        Ok(model::SendToAddress { txid })
     }
 
     /// Converts json straight to a `bitcoin::Txid`.
