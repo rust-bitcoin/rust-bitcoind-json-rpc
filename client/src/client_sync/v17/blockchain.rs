@@ -38,9 +38,6 @@ macro_rules! impl_client_v17__getblock {
                 Ok(json.block()?)
             }
 
-            // FIXME(getblock): This handling of optional args is ugly as hell but because the returned json
-            // is different for each verbosity these are functionally different methods. Is there a better way?
-
             pub fn get_block_verbosity_zero(
                 &self,
                 hash: BlockHash,
