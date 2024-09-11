@@ -11,13 +11,13 @@
 //! - [x] `getbestblockhash`
 //! - [x] `getblock "blockhash" ( verbosity ) `
 //! - [x] `getblockchaininfo`
-//! - [ ] `getblockcount`
-//! - [ ] `getblockhash height`
-//! - [ ] `getblockheader "hash" ( verbose )`
-//! - [ ] `getblockstats hash_or_height ( stats )`
-//! - [ ] `getchaintips`
-//! - [ ] `getchaintxstats ( nblocks blockhash )`
-//! - [ ] `getdifficulty`
+//! - [x] `getblockcount`
+//! - [x] `getblockhash height`
+//! - [x] `getblockheader "hash" ( verbose )`
+//! - [x] `getblockstats hash_or_height ( stats )`
+//! - [x] `getchaintips`
+//! - [x] `getchaintxstats ( nblocks blockhash )`
+//! - [x] `getdifficulty`
 //! - [ ] `getmempoolancestors txid (verbose)`
 //! - [ ] `getmempooldescendants txid (verbose)`
 //! - [ ] `getmempoolentry txid`
@@ -166,8 +166,11 @@ mod zmq;
 #[doc(inline)]
 pub use self::{
     blockchain::{
-        Bip9Softfork, Bip9SoftforkStatus, GetBestBlockHash, GetBlockVerbosityOne,
-        GetBlockVerbosityZero, GetBlockchainInfo, GetTxOut, ScriptPubkey, Softfork, SoftforkReject,
+        Bip9Softfork, Bip9SoftforkStatus, ChainTips, ChainTipsStatus, GetBestBlockHash,
+        GetBlockCount, GetBlockHash, GetBlockHeader, GetBlockHeaderVerbose, GetBlockStats,
+        GetBlockVerbosityOne, GetBlockVerbosityZero, GetBlockchainInfo, GetChainTips,
+        GetChainTxStats, GetDifficulty, GetMempoolAncestors, GetMempoolAncestorsVerbose, GetTxOut,
+        ScriptPubkey, Softfork, SoftforkReject,
     },
     control::{GetMemoryInfoStats, Locked, Logging, Uptime},
     generating::{Generate, GenerateToAddress},

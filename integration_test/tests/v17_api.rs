@@ -12,6 +12,13 @@ mod blockchain {
     impl_test_v17__getblock_verbosity_0!();
     impl_test_v17__getblock_verbosity_1!();
     impl_test_v17__getblockchaininfo!();
+    impl_test_v17__getblockcount!();
+    impl_test_v17__getblockhash!();
+    impl_test_v17__getblockheader!();
+    impl_test_v17__getblockstats!();
+    impl_test_v17__getchaintips!();
+    impl_test_v17__getchaintxstats!();
+    impl_test_v17__getdifficulty!();
 }
 
 // == Control ==
