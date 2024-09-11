@@ -3,16 +3,84 @@
 //! The JSON-RPC API for Bitcoin Core v0.17.1 - network.
 //!
 //! Types for methods found under the `== Network ==` section of the API docs.
-
-use core::fmt;
-
-use bitcoin::{amount, Amount, FeeRate};
-use internals::write_err;
+//!
+/// These types do not implement `into_model` because apart from fee rate there is no additional
+/// `rust-bitcoin` types needed.
 use serde::{Deserialize, Serialize};
 
-use crate::model;
+/// Result of JSON-RPC method `getaddednodeinfo`.
+///
+/// > getaddednodeinfo ( "node" )
+/// >
+/// > Returns information about the given added node, or all added nodes
+/// > (note that onetry addnodes are not listed here)
+/// >
+/// > Arguments:
+/// > 1. "node"   (string, optional) If provided, return information about this specific node, otherwise all nodes are returned.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetAddedNodeInfo(Vec<AddedNode>);
 
-/// Result of the JSON-RPC method `getnetworkinfo`
+/// An item from the list returned by the JSON-RPC method `getaddednodeinfo`.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct AddedNode {
+    /// The node IP address or name (as provided to addnode)
+    #[serde(rename = "addednode")]
+    pub added_node: String,
+    /// If connected
+    pub connected: bool,
+    /// Only when connected = true
+    pub addresses: Vec<AddedNodeAddress>,
+}
+
+/// An address returned as part of the JSON-RPC method `getaddednodeinfo`.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct AddedNodeAddress {
+    /// The bitcoin server IP and port we're connected to.
+    pub address: String,
+    /// connection, inbound or outbound
+    pub connected: String,
+}
+
+/// Result of JSON-RPC method `getnettotals`.
+///
+/// > getnettotals
+/// >
+/// > Returns information about network traffic, including bytes in, bytes out,
+/// > and current time.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetNetTotals {
+    /// Total bytes received.
+    #[serde(rename = "totalbytesrecv")]
+    pub total_bytes_recieved: u64,
+    /// Total bytes sent.
+    #[serde(rename = "totalbytessent")]
+    pub total_bytes_sent: u64,
+    /// Current UNIX time in milliseconds.
+    #[serde(rename = "timemillis")]
+    pub time_millis: u64,
+    /// Upload target totals.
+    #[serde(rename = "uploadtarget")]
+    pub upload_target: UploadTarget,
+}
+
+/// The `upload_target` field from the result of JSON-RPC method `getnettotals`.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct UploadTarget {
+    /// Length of the measuring timeframe in seconds.
+    pub timeframe: u64,
+    /// Target in bytes.
+    pub target: u64,
+    /// True if target is reached.
+    pub target_reached: bool,
+    /// True if serving historical blocks.
+    pub serve_historical_blocks: bool,
+    /// Bytes left in current time cycle.
+    pub bytes_left_in_cycle: u64,
+    /// Seconds left in current time cycle.
+    pub time_left_in_cycle: u64,
+}
+
+/// Result of the JSON-RPC method `getnetworkinfo`.
 ///
 /// > getnetworkinfo
 ///
@@ -81,91 +149,92 @@ pub struct GetNetworkInfoAddress {
     pub score: u32,
 }
 
-impl GetNetworkInfo {
-    /// Converts version specific type to a version in-specific, more strongly typed type.
-    pub fn into_model(self) -> Result<model::GetNetworkInfo, GetNetworkInfoError> {
-        use GetNetworkInfoError as E;
+/// Result of JSON-RPC method `getpeerinfo`.
+///
+/// > getpeerinfo
+/// >
+/// > Returns data about each connected network node as a json array of objects.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct GetPeerInfo(pub Vec<PeerInfo>);
 
-        let relay_fee = fee_rate_from_btc_per_kb(self.relay_fee).map_err(E::RelayFee)?;
-        let incremental_fee =
-            fee_rate_from_btc_per_kb(self.incremental_fee).map_err(E::IncrementalFee)?;
-
-        Ok(model::GetNetworkInfo {
-            version: self.version,
-            subversion: self.subversion,
-            protocol_version: self.protocol_version,
-            local_services: self.local_services,
-            local_services_names: vec![], // TODO: Manually create names?
-            local_relay: self.local_relay,
-            time_offset: self.time_offset,
-            connections: self.connections,
-            network_active: self.network_active,
-            networks: self.networks.into_iter().map(|j| j.into_model()).collect(),
-            relay_fee,
-            incremental_fee,
-            local_addresses: self.local_addresses.into_iter().map(|j| j.into_model()).collect(),
-            warnings: self.warnings,
-        })
-    }
+/// An item from the list returned by the JSON-RPC method `getpeerinfo`.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct PeerInfo {
+    /// Peer index
+    pub id: u32,
+    /// The IP address and port of the peer ("host:port").
+    #[serde(rename = "addr")]
+    pub address: String,
+    /// Bind address of the connection to the peer ("ip:port").
+    #[serde(rename = "addrbind")]
+    pub address_bind: String,
+    /// Local address as reported by the peer.
+    #[serde(rename = "addrlocal")]
+    pub address_local: String,
+    /// The services offered.
+    pub services: String,
+    /// Whether peer has asked us to relay transactions to it.
+    #[serde(rename = "relaytxes")]
+    pub relay_transactions: bool,
+    /// The time in seconds since epoch (Jan 1 1970 GMT) of the last send
+    #[serde(rename = "lastsend")]
+    pub last_send: u32,
+    /// The time in seconds since epoch (Jan 1 1970 GMT) of the last receive
+    #[serde(rename = "lastrecv")]
+    pub last_received: u32,
+    /// The total bytes sent
+    #[serde(rename = "bytessent")]
+    pub bytes_sent: u64,
+    /// The total bytes received
+    #[serde(rename = "bytesrecv")]
+    pub bytes_received: u64,
+    /// The connection time in seconds since epoch (Jan 1 1970 GMT)
+    #[serde(rename = "conntime")]
+    pub connection_time: u32,
+    /// The time offset in seconds
+    #[serde(rename = "timeoffset")]
+    pub time_offset: u32,
+    /// Ping time (if available).
+    #[serde(rename = "pingtime")]
+    pub ping_time: u32,
+    /// Minimum observed ping time (if any at all).
+    #[serde(rename = "minping")]
+    pub minimum_ping: u32,
+    /// Ping wait (if non-zero).
+    #[serde(rename = "pingwait")]
+    pub ping_wait: u32,
+    /// The peer version, such as 70001.
+    pub version: u32,
+    /// The string version (e.g. "/Satoshi:0.8.5/").
+    pub subver: String,
+    /// Inbound (true) or Outbound (false).
+    pub inbound: bool,
+    /// Whether connection was due to addnode/-connect or if it was an automatic/inbound connection.
+    #[serde(rename = "addnode")]
+    pub add_node: bool,
+    /// The starting height (block) of the peer.
+    #[serde(rename = "startingheight")]
+    pub starting_height: u32,
+    /// The ban score.
+    #[serde(rename = "banscore")]
+    pub ban_score: u64,
+    /// The last header we have in common with this peer.
+    pub synced_headers: u32,
+    /// The last block we have in common with this peer.
+    pub synced_blocks: u32,
+    /// The heights of blocks we're currently asking from this peer.
+    pub inflight: Vec<u32>,
+    /// Whether the peer is whitelisted.
+    pub whitelisted: bool,
+    /// The total bytes sent aggregated by message type.
+    pub bytes_sent_per_message: Vec<BytesPerMessage>,
+    /// The total bytes received aggregated by message type.
+    pub bytes_received_per_message: Vec<BytesPerMessage>,
 }
 
-// TODO: Upstream to `rust-bitcoin`.
-/// Constructs a `bitcoin::FeeRate` from bitcoin per 1000 bytes.
-fn fee_rate_from_btc_per_kb(btc_kb: f64) -> Result<FeeRate, amount::ParseAmountError> {
-    let amount = Amount::from_btc(btc_kb)?;
-    let sat_kb = amount.to_sat();
-    // There were no virtual bytes in v0.17.1
-    Ok(FeeRate::from_sat_per_kwu(sat_kb))
-}
-
-impl GetNetworkInfoNetwork {
-    /// Converts version specific type to a version in-specific, more strongly typed type.
-    pub fn into_model(self) -> model::GetNetworkInfoNetwork {
-        model::GetNetworkInfoNetwork {
-            name: self.name,
-            limited: self.limited,
-            reachable: self.reachable,
-            proxy: self.proxy,
-            proxy_randomize_credentials: self.proxy_randomize_credentials,
-        }
-    }
-}
-
-impl GetNetworkInfoAddress {
-    /// Converts version specific type to a version in-specific, more strongly typed type.
-    pub fn into_model(self) -> model::GetNetworkInfoAddress {
-        model::GetNetworkInfoAddress { address: self.address, port: self.port, score: self.score }
-    }
-}
-
-/// Error when converting to a `v22::GetBlockchainInfo` type to a `concrete` type.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum GetNetworkInfoError {
-    /// Conversion of the `relay_fee` field failed.
-    RelayFee(amount::ParseAmountError),
-    /// Conversion of the `incremental_fee` field failed.
-    IncrementalFee(amount::ParseAmountError),
-}
-
-impl fmt::Display for GetNetworkInfoError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use GetNetworkInfoError::*;
-
-        match *self {
-            RelayFee(ref e) => write_err!(f, "conversion of the `relay_fee` field failed"; e),
-            IncrementalFee(ref e) =>
-                write_err!(f, "conversion of the `incremental_fee` field failed"; e),
-        }
-    }
-}
-
-impl std::error::Error for GetNetworkInfoError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        use GetNetworkInfoError::*;
-
-        match *self {
-            RelayFee(ref e) => Some(e),
-            IncrementalFee(ref e) => Some(e),
-        }
-    }
+/// An item from the list returned by the JSON-RPC method `getpeerinfo`.
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct BytesPerMessage {
+    #[serde(rename = "addr")]
+    pub address: u32, // FIXME: This looks wrong.
 }

@@ -43,7 +43,9 @@ mod generating {
 mod network {
     use super::*;
 
+    impl_test_v17__getnettotals!();
     impl_test_v17__getnetworkinfo!();
+    impl_test_v17__getpeerinfo!();
 }
 
 // == Rawtransactions ==

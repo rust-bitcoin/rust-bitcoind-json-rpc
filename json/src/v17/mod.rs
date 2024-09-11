@@ -57,18 +57,18 @@
 //! - [ ] `submitblock "hexdata"  ( "dummy" )`
 //!
 //! **== Network ==**
-//! - [ ] `addnode "node" "add|remove|onetry"`
-//! - [ ] `clearbanned`
-//! - [ ] `disconnectnode "[address]" [nodeid]`
+//! - [-] `addnode "node" "add|remove|onetry"`
+//! - [-] `clearbanned`
+//! - [-] `disconnectnode "[address]" [nodeid]`
 //! - [ ] `getaddednodeinfo ( "node" )`
-//! - [ ] `getconnectioncount`
-//! - [ ] `getnettotals`
+//! - [-] `getconnectioncount`
+//! - [x] `getnettotals`
 //! - [x] `getnetworkinfo`
-//! - [ ] `getpeerinfo`
-//! - [ ] `listbanned`
-//! - [ ] `ping`
-//! - [ ] `setban "subnet" "add|remove" (bantime) (absolute)`
-//! - [ ] `setnetworkactive true|false`
+//! - [x] `getpeerinfo`
+//! - [-] `listbanned`
+//! - [-] `ping`
+//! - [-] `setban "subnet" "add|remove" (bantime) (absolute)`
+//! - [-] `setnetworkactive true|false`
 //!
 //! **== Rawtransactions ==**
 //! - [ ] `combinepsbt ["psbt",...]`
@@ -179,7 +179,10 @@ pub use self::{
     },
     control::{GetMemoryInfoStats, Locked, Logging, Uptime},
     generating::{Generate, GenerateToAddress},
-    network::{GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork},
+    network::{
+        AddedNodeAddress, BytesPerMessage, GetAddedNodeInfo, GetNetTotals, GetNetworkInfo,
+        GetNetworkInfoAddress, GetNetworkInfoNetwork, GetPeerInfo, PeerInfo, UploadTarget,
+    },
     raw_transactions::SendRawTransaction,
     wallet::{
         CreateWallet, GetBalance, GetNewAddress, GetTransaction, GetTransactionDetail,
