@@ -3,9 +3,14 @@
 //! JSON-RPC types for `bitcoind v0.17.1`.
 //!
 //! These structs model the JSON data returned by the JSON-RPC API. They use stdlib types (or custom
-//! types), for more concrete types see [`crate::model`].
+//! types) and where necessary implement an `into_model` function to convert the type to a
+//! [`crate::model`] type of the same name. The types in this module are version specific, the types
+//! in the `model` module are version non-specific and are strongly typed using `rust-bitcoin`.
 //!
-//! A `x` marks methods that are implemented _and_ tested.
+//! Key:
+//! - `[ ]` means not yet done.
+//! - `[x]` marks means implemented _and_ tested.
+//! - `[-]` means it was considered and intentionally not done.
 //!
 //! **== Blockchain ==**
 //! - [x] `getbestblockhash`
@@ -18,20 +23,20 @@
 //! - [x] `getchaintips`
 //! - [x] `getchaintxstats ( nblocks blockhash )`
 //! - [x] `getdifficulty`
-//! - [ ] `getmempoolancestors txid (verbose)`
-//! - [ ] `getmempooldescendants txid (verbose)`
-//! - [ ] `getmempoolentry txid`
-//! - [ ] `getmempoolinfo`
-//! - [ ] `getrawmempool ( verbose )`
-//! - [ ] `gettxout "txid" n ( include_mempool )`
-//! - [ ] `gettxoutproof ["txid",...] ( blockhash )`
-//! - [ ] `gettxoutsetinfo`
-//! - [ ] `preciousblock "blockhash"`
-//! - [ ] `pruneblockchain`
-//! - [ ] `savemempool`
-//! - [ ] `scantxoutset <action> ( <scanobjects> )`
-//! - [ ] `verifychain ( checklevel nblocks )`
-//! - [ ] `verifytxoutproof "proof"`
+//! - [x] `getmempoolancestors txid (verbose)`
+//! - [x] `getmempooldescendants txid (verbose)`
+//! - [x] `getmempoolentry txid`
+//! - [x] `getmempoolinfo`
+//! - [x] `getrawmempool ( verbose )`
+//! - [x] `gettxout "txid" n ( include_mempool )`
+//! - [x] `gettxoutproof ["txid",...] ( blockhash )`
+//! - [x] `gettxoutsetinfo`
+//! - [x] `preciousblock "blockhash"`
+//! - [-] `pruneblockchain`
+//! - [-] `savemempool`
+//! - [-] `scantxoutset <action> ( <scanobjects> )`
+//! - [x] `verifychain ( checklevel nblocks )`
+//! - [-] `verifytxoutproof "proof"`
 //!
 //! **== Control ==**
 //! - [x] `getmemoryinfo ("mode")`
