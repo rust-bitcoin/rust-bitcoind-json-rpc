@@ -19,6 +19,7 @@ use crate::client_sync::{handle_defaults, into_json};
 use crate::json::v17::*;
 
 crate::define_jsonrpc_minreq_client!("v17");
+crate::impl_client_check_expected_server_version!({ [170100] });
 
 // == Blockchain ==
 crate::impl_client_v17__getblockchaininfo!();
@@ -45,8 +46,9 @@ crate::impl_client_v17__generatetoaddress!();
 crate::impl_client_v17__generate!();
 
 // == Network ==
+crate::impl_client_v17__getnettotals!();
 crate::impl_client_v17__getnetworkinfo!();
-crate::impl_client_check_expected_server_version!({ [170100] });
+crate::impl_client_v17__getpeerinfo!();
 
 // == Rawtransactions ==
 crate::impl_client_v17__sendrawtransaction!();
