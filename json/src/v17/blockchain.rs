@@ -18,7 +18,7 @@ use bitcoin::{
 use internals::write_err;
 use serde::{Deserialize, Serialize};
 
-use crate::model;
+use crate::{model, NumericError};
 
 /// Result of JSON-RPC method `getbestblockhash`.
 ///
@@ -64,16 +64,16 @@ pub struct GetBlockVerbosityOne {
     /// The block hash (same as provided) in RPC call.
     pub hash: String,
     /// The number of confirmations, or -1 if the block is not on the main chain.
-    pub confirmations: i32,
+    pub confirmations: i64,
     /// The block size.
-    pub size: usize,
+    pub size: i64,
     /// The block size excluding witness data.
     #[serde(rename = "strippedsize")]
-    pub stripped_size: Option<usize>,
+    pub stripped_size: Option<i64>,
     /// The block weight as defined in BIP-141.
     pub weight: u64,
     /// The block height or index.
-    pub height: usize,
+    pub height: i64,
     /// The block version.
     pub version: i32,
     /// The block version formatted in hexadecimal.
@@ -82,15 +82,15 @@ pub struct GetBlockVerbosityOne {
     /// The merkle root
     #[serde(rename = "merkleroot")]
     pub merkle_root: String,
-    /// The transaction ids
+    /// The transaction ids.
     pub tx: Vec<String>,
     /// The block time expressed in UNIX epoch time.
-    pub time: usize,
+    pub time: i64,
     /// The median block time expressed in UNIX epoch time.
     #[serde(rename = "mediantime")]
-    pub median_time: Option<usize>,
-    /// The nonce
-    pub nonce: u32,
+    pub median_time: Option<i64>,
+    /// The nonce (this should be only 4 bytes).
+    pub nonce: i64,
     /// The bits.
     pub bits: String,
     /// The difficulty.
@@ -100,7 +100,7 @@ pub struct GetBlockVerbosityOne {
     pub chain_work: String,
     /// The number of transactions in the block.
     #[serde(rename = "nTx")]
-    pub n_tx: u32,
+    pub n_tx: i64,
     /// The hash of the previous block (if available).
     #[serde(rename = "previousblockhash")]
     pub previous_block_hash: Option<String>,
@@ -115,45 +115,46 @@ impl GetBlockVerbosityOne {
         use GetBlockVerbosityOneError as E;
 
         let hash = self.hash.parse::<BlockHash>().map_err(E::Hash)?;
-        let weight = Weight::from_wu(self.weight); // TODO: Confirm this uses weight units.
+        let stripped_size =
+            self.stripped_size.map(|size| crate::to_u32(size, "stripped_size")).transpose()?;
+        let weight = Weight::from_wu(self.weight); // FIXME: Confirm this uses weight units.
         let version = block::Version::from_consensus(self.version);
-
         let tx = self
             .tx
             .iter()
             .map(|t| encode::deserialize_hex::<Txid>(t).map_err(E::Tx))
             .collect::<Result<Vec<_>, _>>()?;
-
+        let median_time = self.median_time.map(|t| crate::to_u32(t, "median_time")).transpose()?;
         let bits = CompactTarget::from_unprefixed_hex(&self.bits).map_err(E::Bits)?;
         let chain_work = Work::from_unprefixed_hex(&self.chain_work).map_err(E::ChainWork)?;
-
-        let previous_block_hash = match self.previous_block_hash {
-            Some(hash) => Some(hash.parse::<BlockHash>().map_err(E::PreviousBlockHash)?),
-            None => None,
-        };
-        let next_block_hash = match self.next_block_hash {
-            Some(hash) => Some(hash.parse::<BlockHash>().map_err(E::NextBlockHash)?),
-            None => None,
-        };
+        let previous_block_hash = self
+            .previous_block_hash
+            .map(|s| s.parse::<BlockHash>())
+            .transpose()
+            .map_err(E::PreviousBlockHash)?;
+        let next_block_hash = self
+            .next_block_hash
+            .map(|s| s.parse::<BlockHash>())
+            .transpose()
+            .map_err(E::NextBlockHash)?;
 
         Ok(model::GetBlockVerbosityOne {
             hash,
             confirmations: self.confirmations,
-            size: self.size,
-            stripped_size: self.stripped_size,
+            size: crate::to_u32(self.size, "size")?,
+            stripped_size,
             weight,
-            height: self.height,
+            height: crate::to_u32(self.height, "height")?,
             version,
-            version_hex: self.version_hex,
-            merkle_root: self.merkle_root, // TODO: Use hash, which one depends on segwit or not
+            merkle_root: self.merkle_root, // TODO: Use hash, which one depends on segwit or not.
             tx,
-            time: self.time, // TODO: Use stronger type.
-            median_time: self.median_time,
-            nonce: self.nonce,
+            time: crate::to_u32(self.time, "time")?,
+            median_time,
+            nonce: crate::to_u32(self.nonce, "nonce")?,
             bits,
             difficulty: self.difficulty,
             chain_work,
-            n_tx: self.n_tx,
+            n_tx: crate::to_u32(self.n_tx, "n_tx")?,
             previous_block_hash,
             next_block_hash,
         })
@@ -163,6 +164,8 @@ impl GetBlockVerbosityOne {
 /// Error when converting a `GetBlockVerbosityOne` type into the model type.
 #[derive(Debug)]
 pub enum GetBlockVerbosityOneError {
+    /// Conversion of numeric type to expected type failed.
+    Numeric(NumericError),
     /// Conversion of the transaction `hash` field failed.
     Hash(hex::HexToArrayError),
     /// Conversion of the transaction `hex` field failed.
@@ -182,6 +185,7 @@ impl fmt::Display for GetBlockVerbosityOneError {
         use GetBlockVerbosityOneError::*;
 
         match *self {
+            Numeric(ref e) => write_err!(f, "numeric"; e),
             Hash(ref e) => write_err!(f, "conversion of the `hash` field failed"; e),
             Tx(ref e) => write_err!(f, "conversion of the `tx` field failed"; e),
             Bits(ref e) => write_err!(f, "conversion of the `bits` field failed"; e),
@@ -199,6 +203,7 @@ impl std::error::Error for GetBlockVerbosityOneError {
         use GetBlockVerbosityOneError::*;
 
         match *self {
+            Numeric(ref e) => Some(e),
             Hash(ref e) => Some(e),
             Tx(ref e) => Some(e),
             Bits(ref e) => Some(e),
@@ -207,6 +212,10 @@ impl std::error::Error for GetBlockVerbosityOneError {
             NextBlockHash(ref e) => Some(e),
         }
     }
+}
+
+impl From<NumericError> for GetBlockVerbosityOneError {
+    fn from(e: NumericError) -> Self { Self::Numeric(e) }
 }
 
 /// Result of JSON-RPC method `getblockchaininfo`.
@@ -219,9 +228,9 @@ pub struct GetBlockchainInfo {
     /// Current network name as defined in BIP70 (main, test, signet, regtest).
     pub chain: String,
     /// The current number of blocks processed in the server.
-    pub blocks: u64,
+    pub blocks: i64,
     /// The current number of headers we have validated.
-    pub headers: u64,
+    pub headers: i64,
     /// The hash of the currently best block.
     #[serde(rename = "bestblockhash")]
     pub best_block_hash: String,
@@ -229,7 +238,7 @@ pub struct GetBlockchainInfo {
     pub difficulty: f64,
     /// Median time for the current best block.
     #[serde(rename = "mediantime")]
-    pub median_time: u64,
+    pub median_time: i64,
     /// Estimate of verification progress (between 0 and 1).
     #[serde(rename = "verificationprogress")]
     pub verification_progress: f64,
@@ -245,11 +254,11 @@ pub struct GetBlockchainInfo {
     pub pruned: bool,
     /// Lowest-height complete block stored (only present if pruning is enabled).
     #[serde(rename = "pruneheight")]
-    pub prune_height: Option<u64>,
+    pub prune_height: Option<i64>,
     /// Whether automatic pruning is enabled (only present if pruning is enabled).
     pub automatic_pruning: Option<bool>,
     /// The target size used by pruning (only present if automatic pruning is enabled).
-    pub prune_target_size: Option<u64>,
+    pub prune_target_size: Option<i64>,
     /// Status of softforks in progress.
     pub softforks: Vec<Softfork>,
     /// Status of BIP-9 softforks in progress, maps softfork name -> [`Softfork`].
@@ -264,7 +273,7 @@ pub struct Softfork {
     /// Name of softfork.
     id: String,
     /// Block version.
-    version: usize,
+    version: i64,
     /// Progress toward rejecting pre-softfork blocks.
     reject: SoftforkReject,
 }
@@ -287,9 +296,9 @@ pub struct Bip9Softfork {
     #[serde(rename = "startTime")]
     pub start_time: i64,
     /// The median time past of a block at which the deployment is considered failed if not yet locked in.
-    pub timeout: u64,
+    pub timeout: i64,
     /// Height of the first block to which the status applies.
-    pub since: u32,
+    pub since: i64,
 }
 
 /// BIP-9 softfork status: one of "defined", "started", "locked_in", "active", "failed".
@@ -317,24 +326,27 @@ impl GetBlockchainInfo {
         let best_block_hash =
             self.best_block_hash.parse::<BlockHash>().map_err(E::BestBlockHash)?;
         let chain_work = Work::from_unprefixed_hex(&self.chain_work).map_err(E::ChainWork)?;
-
+        let prune_height =
+            self.prune_height.map(|h| crate::to_u32(h, "prune_height")).transpose()?;
+        let prune_target_size =
+            self.prune_target_size.map(|h| crate::to_u32(h, "prune_target_size")).transpose()?;
         let softforks = BTreeMap::new(); // TODO: Handle softforks stuff.
 
         Ok(model::GetBlockchainInfo {
             chain,
-            blocks: self.blocks,
-            headers: self.headers,
+            blocks: crate::to_u32(self.blocks, "blocks")?,
+            headers: crate::to_u32(self.headers, "headers")?,
             best_block_hash,
             difficulty: self.difficulty,
-            median_time: self.median_time,
+            median_time: crate::to_u32(self.median_time, "median_time")?,
             verification_progress: self.verification_progress,
             initial_block_download: self.initial_block_download,
             chain_work,
             size_on_disk: self.size_on_disk,
             pruned: self.pruned,
-            prune_height: self.prune_height,
+            prune_height,
             automatic_pruning: self.automatic_pruning,
-            prune_target_size: self.prune_target_size,
+            prune_target_size,
             softforks,
             warnings: self.warnings,
         })
@@ -359,8 +371,13 @@ impl Bip9SoftforkStatus {
 /// Error when converting a `GetBlockchainInfo` type into the model type.
 #[derive(Debug)]
 pub enum GetBlockchainInfoError {
+    /// Conversion of numeric type to expected type failed.
+    Numeric(NumericError),
+    /// Conversion of the `chain` field failed.
     Chain(network::ParseNetworkError),
+    /// Conversion of the `best_block_hash` field failed.
     BestBlockHash(hex::HexToArrayError),
+    /// Conversion of the `chain_work` field failed.
     ChainWork(UnprefixedHexError),
 }
 
@@ -369,6 +386,7 @@ impl fmt::Display for GetBlockchainInfoError {
         use GetBlockchainInfoError::*;
 
         match *self {
+            Numeric(ref e) => write_err!(f, "numeric"; e),
             Chain(ref e) => write_err!(f, "conversion of the `chain` field failed"; e),
             BestBlockHash(ref e) =>
                 write_err!(f, "conversion of the `best_block_hash` field failed"; e),
@@ -382,11 +400,16 @@ impl std::error::Error for GetBlockchainInfoError {
         use GetBlockchainInfoError::*;
 
         match *self {
+            Numeric(ref e) => Some(e),
             Chain(ref e) => Some(e),
             BestBlockHash(ref e) => Some(e),
             ChainWork(ref e) => Some(e),
         }
     }
+}
+
+impl From<NumericError> for GetBlockchainInfoError {
+    fn from(e: NumericError) -> Self { Self::Numeric(e) }
 }
 
 /// Result of JSON-RPC method `getblockcount`.
@@ -496,7 +519,7 @@ pub struct GetBlockHeaderVerbose {
     /// The number of confirmations, or -1 if the block is not on the main chain.
     pub confirmations: i64,
     /// The block height or index.
-    pub height: u64,
+    pub height: i64,
     /// The block version.
     pub version: i32,
     /// The block version formatted in hexadecimal.
@@ -506,12 +529,12 @@ pub struct GetBlockHeaderVerbose {
     #[serde(rename = "merkleroot")]
     pub merkle_root: String,
     /// The block time in seconds since epoch (Jan 1 1970 GMT).
-    pub time: u64,
+    pub time: i64,
     /// The median block time in seconds since epoch (Jan 1 1970 GMT).
     #[serde(rename = "mediantime")]
-    pub median_time: u64,
+    pub median_time: i64,
     /// The nonce.
-    pub nonce: u64,
+    pub nonce: i64,
     /// The bits.
     pub bits: String,
     /// The difficulty.
@@ -552,12 +575,12 @@ impl GetBlockHeaderVerbose {
         Ok(model::GetBlockHeaderVerbose {
             hash,
             confirmations: self.confirmations,
-            height: self.height,
+            height: crate::to_u32(self.height, "height")?,
             version,
             merkle_root,
-            time: self.time,
-            median_time: self.median_time,
-            nonce: self.nonce,
+            time: crate::to_u32(self.time, "time")?,
+            median_time: crate::to_u32(self.median_time, "median_time")?,
+            nonce: crate::to_u32(self.nonce, "nonce")?,
             bits,
             difficulty: self.difficulty,
             chain_work,
@@ -574,6 +597,8 @@ impl GetBlockHeaderVerbose {
 /// Error when converting a `GetBlockHeader` type into the model type.
 #[derive(Debug)]
 pub enum GetBlockHeaderVerboseError {
+    /// Conversion of numeric type to expected type failed.
+    Numeric(NumericError),
     /// Conversion of `hash` field failed.
     Hash(hex::HexToArrayError),
     /// Conversion of `merkle_root` field failed.
@@ -586,6 +611,44 @@ pub enum GetBlockHeaderVerboseError {
     PreviousBlockHash(hex::HexToArrayError),
     /// Conversion of `next_block_hash` field failed.
     NextBlockHash(hex::HexToArrayError),
+}
+
+impl fmt::Display for GetBlockHeaderVerboseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use GetBlockHeaderVerboseError::*;
+
+        match *self {
+            Numeric(ref e) => write_err!(f, "numeric"; e),
+            Hash(ref e) => write_err!(f, "conversion of the `hash` field failed"; e),
+            MerkleRoot(ref e) => write_err!(f, "conversion of the `merkle_root` field failed"; e),
+            Bits(ref e) => write_err!(f, "conversion of the `bit` field failed"; e),
+            ChainWork(ref e) => write_err!(f, "conversion of the `chain_work` field failed"; e),
+            PreviousBlockHash(ref e) =>
+                write_err!(f, "conversion of the `previous_bock_hash` field failed"; e),
+            NextBlockHash(ref e) =>
+                write_err!(f, "conversion of the `next_bock_hash` field failed"; e),
+        }
+    }
+}
+
+impl std::error::Error for GetBlockHeaderVerboseError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        use GetBlockHeaderVerboseError::*;
+
+        match *self {
+            Numeric(ref e) => Some(e),
+            Hash(ref e) => Some(e),
+            MerkleRoot(ref e) => Some(e),
+            Bits(ref e) => Some(e),
+            ChainWork(ref e) => Some(e),
+            PreviousBlockHash(ref e) => Some(e),
+            NextBlockHash(ref e) => Some(e),
+        }
+    }
+}
+
+impl From<NumericError> for GetBlockHeaderVerboseError {
+    fn from(e: NumericError) -> Self { Self::Numeric(e) }
 }
 
 /// Result of JSON-RPC method `getblockstats`.
@@ -608,18 +671,17 @@ pub enum GetBlockHeaderVerboseError {
 /// >       ,...
 /// >     ]
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-// FIXME: Should these fields be u64 or u32?
 pub struct GetBlockStats {
     /// Average fee in the block.
     #[serde(rename = "avgfee")]
     pub average_fee: u64,
-    // TODO: Remember these doces will become silently stale when unit changes in a later version of Core.
+    // FIXME: Remember these docs will become silently stale when unit changes in a later version of Core.
     /// Average feerate (in satoshis per virtual byte).
     #[serde(rename = "avgfeerate")]
     pub average_fee_rate: u64,
     /// Average transaction size.
     #[serde(rename = "avgtxsize")]
-    pub average_tx_size: u64,
+    pub average_tx_size: i64,
     /// The block hash (to check for potential reorgs).
     #[serde(rename = "blockhash")]
     pub block_hash: String,
@@ -628,10 +690,10 @@ pub struct GetBlockStats {
     #[serde(rename = "feerate_percentiles")]
     pub fee_rate_percentiles: [u64; 5],
     /// The height of the block.
-    pub height: u64,
+    pub height: i64,
     /// The number of inputs (excluding coinbase).
     #[serde(rename = "ins")]
-    pub inputs: u64,
+    pub inputs: i64,
     /// Maximum fee in the block.
     #[serde(rename = "maxfee")]
     pub max_fee: u64,
@@ -640,16 +702,16 @@ pub struct GetBlockStats {
     pub max_fee_rate: u64,
     /// Maximum transaction size.
     #[serde(rename = "maxtxsize")]
-    pub max_tx_size: u64,
+    pub max_tx_size: i64,
     /// Truncated median fee in the block.
     #[serde(rename = "medianfee")]
     pub median_fee: u64,
     /// The block median time past.
     #[serde(rename = "mediantime")]
-    pub median_time: u32,
+    pub median_time: i64,
     /// Truncated median transaction size
     #[serde(rename = "mediantxsize")]
-    pub median_tx_size: u64,
+    pub median_tx_size: i64,
     /// Minimum fee in the block.
     #[serde(rename = "minfee")]
     pub minimum_fee: u64,
@@ -658,53 +720,54 @@ pub struct GetBlockStats {
     pub minimum_fee_rate: u64,
     /// Minimum transaction size.
     #[serde(rename = "mintxsize")]
-    pub minimum_tx_size: u64,
+    pub minimum_tx_size: i64,
     /// The number of outputs.
     #[serde(rename = "outs")]
-    pub outputs: u64,
+    pub outputs: i64,
     /// The block subsidy.
     pub subsidy: u64,
     /// Total size of all segwit transactions.
     #[serde(rename = "swtotal_size")]
-    pub segwit_total_size: u64,
+    pub segwit_total_size: i64,
     /// Total weight of all segwit transactions divided by segwit scale factor (4).
     #[serde(rename = "swtotal_weight")]
     pub segwit_total_weight: u64,
     /// The number of segwit transactions.
     #[serde(rename = "swtxs")]
-    pub segwit_txs: u64,
+    pub segwit_txs: i64,
     /// The block time.
-    pub time: u32,
+    pub time: i64,
     /// Total amount in all outputs (excluding coinbase and thus reward [ie subsidy + totalfee]).
     pub total_out: u64,
     /// Total size of all non-coinbase transactions.
-    pub total_size: u64,
+    pub total_size: i64,
     /// Total weight of all non-coinbase transactions divided by segwit scale factor (4).
     pub total_weight: u64,
     /// The fee total.
     #[serde(rename = "totalfee")]
     pub total_fee: u64,
     /// The number of transactions (excluding coinbase).
-    pub txs: u64,
+    pub txs: i64,
     /// The increase/decrease in the number of unspent outputs.
-    pub utxo_increase: u64,
+    pub utxo_increase: i32,
     /// The increase/decrease in size for the utxo index (not discounting op_return and similar).
     #[serde(rename = "utxo_size_inc")]
-    pub utxo_size_increase: u64,
+    pub utxo_size_increase: i32,
 }
 
 impl GetBlockStats {
     /// Converts version specific type to a version in-specific, more strongly typed type.
-    pub fn into_model(self) -> Result<model::GetBlockStats, hex::HexToArrayError> {
-        let block_hash = self.block_hash.parse::<BlockHash>()?;
+    pub fn into_model(self) -> Result<model::GetBlockStats, GetBlockStatsError> {
+        use GetBlockStatsError as E;
+
+        // `FeeRate::sat_per_vb` returns an option if value overflows.
+        let average_fee_rate = FeeRate::from_sat_per_vb(self.average_fee_rate);
+        let block_hash = self.block_hash.parse::<BlockHash>().map_err(E::BlockHash)?;
         let fee_rate_percentiles = self
             .fee_rate_percentiles
             .iter()
             .map(|vb| FeeRate::from_sat_per_vb(*vb))
             .collect::<Vec<Option<FeeRate>>>();
-
-        // `FeeRate::sat_per_vb` returns an option if value overflows.
-        let average_fee_rate = FeeRate::from_sat_per_vb(self.average_fee_rate);
         let max_fee_rate = FeeRate::from_sat_per_vb(self.max_fee_rate);
         let minimum_fee_rate = FeeRate::from_sat_per_vb(self.minimum_fee_rate);
 
@@ -715,35 +778,70 @@ impl GetBlockStats {
         Ok(model::GetBlockStats {
             average_fee: Amount::from_sat(self.average_fee),
             average_fee_rate,
-            average_tx_size: self.average_tx_size,
+            average_tx_size: crate::to_u32(self.average_tx_size, "average_tx_size")?,
             block_hash,
             fee_rate_percentiles,
-            height: self.height,
-            inputs: self.inputs,
+            height: crate::to_u32(self.height, "height")?,
+            inputs: crate::to_u32(self.inputs, "inputs")?,
             max_fee: Amount::from_sat(self.max_fee),
             max_fee_rate,
-            max_tx_size: self.max_tx_size,
+            max_tx_size: crate::to_u32(self.max_tx_size, "max_tx_size")?,
             median_fee: Amount::from_sat(self.median_fee),
-            median_time: self.median_time,
-            median_tx_size: self.median_tx_size,
+            median_time: crate::to_u32(self.median_time, "median_time")?,
+            median_tx_size: crate::to_u32(self.median_tx_size, "median_tx_size")?,
             minimum_fee: Amount::from_sat(self.minimum_fee),
             minimum_fee_rate,
-            minimum_tx_size: self.minimum_tx_size,
-            outputs: self.outputs,
+            minimum_tx_size: crate::to_u32(self.minimum_tx_size, "minimum_tx_size")?,
+            outputs: crate::to_u32(self.outputs, "outputs")?,
             subsidy: Amount::from_sat(self.subsidy),
-            segwit_total_size: self.segwit_total_size,
+            segwit_total_size: crate::to_u32(self.segwit_total_size, "segwit_total_size")?,
             segwit_total_weight,
-            segwit_txs: self.segwit_txs,
-            time: self.time,
+            segwit_txs: crate::to_u32(self.segwit_txs, "segwit_txs")?,
+            time: crate::to_u32(self.time, "time")?,
             total_out: Amount::from_sat(self.total_out),
-            total_size: self.total_size,
+            total_size: crate::to_u32(self.total_size, "total_size")?,
             total_weight,
             total_fee: Amount::from_sat(self.total_fee),
-            txs: self.txs,
+            txs: crate::to_u32(self.txs, "txs")?,
             utxo_increase: self.utxo_increase,
             utxo_size_increase: self.utxo_size_increase,
         })
     }
+}
+
+/// Error when converting a `GetBlockStats` type into the model type.
+#[derive(Debug)]
+pub enum GetBlockStatsError {
+    /// Conversion of numeric type to expected type failed.
+    Numeric(NumericError),
+    /// Conversion of the `block_hash` field failed.
+    BlockHash(hex::HexToArrayError),
+}
+
+impl fmt::Display for GetBlockStatsError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use GetBlockStatsError::*;
+
+        match *self {
+            Numeric(ref e) => write_err!(f, "numeric"; e),
+            BlockHash(ref e) => write_err!(f, "conversion of the `block_hash` field failed"; e),
+        }
+    }
+}
+
+impl std::error::Error for GetBlockStatsError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        use GetBlockStatsError::*;
+
+        match *self {
+            Numeric(ref e) => Some(e),
+            BlockHash(ref e) => Some(e),
+        }
+    }
+}
+
+impl From<NumericError> for GetBlockStatsError {
+    fn from(e: NumericError) -> Self { Self::Numeric(e) }
 }
 
 /// Result of JSON-RPC method `getchaintips`.
@@ -756,12 +854,12 @@ pub struct GetChainTips(pub Vec<ChainTips>);
 #[derive(Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
 pub struct ChainTips {
     /// Height of the chain tip.
-    pub height: u64,
+    pub height: i64,
     /// Block hash of the tip.
     pub hash: String,
     /// Zero for main chain.
     #[serde(rename = "branchlen")]
-    pub branch_length: u64,
+    pub branch_length: i64,
     /// "active" for the main chain.
     pub status: ChainTipsStatus,
 }
@@ -784,7 +882,7 @@ pub enum ChainTipsStatus {
 
 impl GetChainTips {
     /// Converts version specific type to a version in-specific, more strongly typed type.
-    pub fn into_model(self) -> Result<model::GetChainTips, hex::HexToArrayError> {
+    pub fn into_model(self) -> Result<model::GetChainTips, ChainTipsError> {
         let v = self.0.into_iter().map(|item| item.into_model()).collect::<Result<Vec<_>, _>>()?;
         Ok(model::GetChainTips(v))
     }
@@ -792,13 +890,13 @@ impl GetChainTips {
 
 impl ChainTips {
     /// Converts version specific type to a version in-specific, more strongly typed type.
-    pub fn into_model(self) -> Result<model::ChainTips, hex::HexToArrayError> {
-        let hash = self.hash.parse::<BlockHash>()?;
+    pub fn into_model(self) -> Result<model::ChainTips, ChainTipsError> {
+        use ChainTipsError as E;
 
         Ok(model::ChainTips {
-            height: self.height,
-            hash,
-            branch_length: self.branch_length,
+            height: crate::to_u32(self.height, "height")?,
+            hash: self.hash.parse::<BlockHash>().map_err(E::Hash)?,
+            branch_length: crate::to_u32(self.branch_length, "branch_length")?,
             status: self.status.into_model(),
         })
     }
@@ -819,6 +917,41 @@ impl ChainTipsStatus {
     }
 }
 
+/// Error when converting a `ChainTips` type into the model type.
+#[derive(Debug)]
+pub enum ChainTipsError {
+    /// Conversion of numeric type to expected type failed.
+    Numeric(NumericError),
+    /// Conversion of the `hash` field failed.
+    Hash(hex::HexToArrayError),
+}
+
+impl fmt::Display for ChainTipsError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use ChainTipsError::*;
+
+        match *self {
+            Numeric(ref e) => write_err!(f, "numeric"; e),
+            Hash(ref e) => write_err!(f, "conversion of the `hash` field failed"; e),
+        }
+    }
+}
+
+impl std::error::Error for ChainTipsError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        use ChainTipsError::*;
+
+        match *self {
+            Numeric(ref e) => Some(e),
+            Hash(ref e) => Some(e),
+        }
+    }
+}
+
+impl From<NumericError> for ChainTipsError {
+    fn from(e: NumericError) -> Self { Self::Numeric(e) }
+}
+
 /// Result of JSON-RPC method `getchaintxstats`.
 ///
 /// > getchaintxstats ( nblocks blockhash )
@@ -831,38 +964,82 @@ impl ChainTipsStatus {
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct GetChainTxStats {
     /// The timestamp for the final block in the window in UNIX format.
-    pub time: u32,
+    pub time: i64,
     /// The total number of transactions in the chain up to that point.
     #[serde(rename = "txcount")]
-    pub tx_count: u64,
+    pub tx_count: i64,
     /// The hash of the final block in the window.
     pub window_final_block_hash: String,
     /// Size of the window in number of blocks.
-    pub window_block_count: u64,
+    pub window_block_count: i64,
     /// The number of transactions in the window. Only returned if "window_block_count" is > 0.
-    pub window_tx_count: Option<u64>,
+    pub window_tx_count: Option<i64>,
     /// The elapsed time in the window in seconds. Only returned if "window_block_count" is > 0.
-    pub window_interval: Option<u64>,
+    pub window_interval: Option<i64>,
     /// The average rate of transactions per second in the window. Only returned if "window_interval" is > 0.
     #[serde(rename = "txrate")]
-    pub tx_rate: Option<u64>,
+    pub tx_rate: Option<i64>,
 }
 
 impl GetChainTxStats {
     /// Converts version specific type to a version in-specific, more strongly typed type.
-    pub fn into_model(self) -> Result<model::GetChainTxStats, hex::HexToArrayError> {
-        let window_final_block_hash = self.window_final_block_hash.parse::<BlockHash>()?;
+    pub fn into_model(self) -> Result<model::GetChainTxStats, GetChainTxStatsError> {
+        use GetChainTxStatsError as E;
+
+        let window_final_block_hash =
+            self.window_final_block_hash.parse::<BlockHash>().map_err(E::WindowFinalBlockHash)?;
+        let window_tx_count =
+            self.window_tx_count.map(|h| crate::to_u32(h, "window_tx_count")).transpose()?;
+        let window_interval =
+            self.window_interval.map(|h| crate::to_u32(h, "window_interval")).transpose()?;
+        let tx_rate = self.tx_rate.map(|h| crate::to_u32(h, "tx_rate")).transpose()?;
 
         Ok(model::GetChainTxStats {
-            time: self.time,
-            tx_count: self.tx_count,
+            time: crate::to_u32(self.time, "time")?,
+            tx_count: crate::to_u32(self.tx_count, "tx_count")?,
             window_final_block_hash,
-            window_block_count: self.window_block_count,
-            window_tx_count: self.window_tx_count,
-            window_interval: self.window_interval,
-            tx_rate: self.tx_rate,
+            window_block_count: crate::to_u32(self.window_block_count, "window_block_count")?,
+            window_tx_count,
+            window_interval,
+            tx_rate,
         })
     }
+}
+
+/// Error when converting a `GetChainTxStats` type into the model type.
+#[derive(Debug)]
+pub enum GetChainTxStatsError {
+    /// Conversion of numeric type to expected type failed.
+    Numeric(NumericError),
+    /// Conversion of the `window_final_block_hash` field failed.
+    WindowFinalBlockHash(hex::HexToArrayError),
+}
+
+impl fmt::Display for GetChainTxStatsError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use GetChainTxStatsError::*;
+
+        match *self {
+            Numeric(ref e) => write_err!(f, "numeric"; e),
+            WindowFinalBlockHash(ref e) =>
+                write_err!(f, "conversion of the `window_final_block_hash` field failed"; e),
+        }
+    }
+}
+
+impl std::error::Error for GetChainTxStatsError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        use GetChainTxStatsError::*;
+
+        match *self {
+            Numeric(ref e) => Some(e),
+            WindowFinalBlockHash(ref e) => Some(e),
+        }
+    }
+}
+
+impl From<NumericError> for GetChainTxStatsError {
+    fn from(e: NumericError) -> Self { Self::Numeric(e) }
 }
 
 /// Result of JSON-RPC method `getdifficulty`.
@@ -932,7 +1109,7 @@ pub struct GetTxOut {
     #[serde(rename = "bestblock")]
     pub best_block: String,
     /// The number of confirmations.
-    pub confirmations: u32,
+    pub confirmations: i64,
     /// The transaction value in BTC.
     pub value: f64,
     /// The script pubkey.
@@ -967,7 +1144,6 @@ impl GetTxOut {
         use GetTxOutError as E;
 
         let best_block = self.best_block.parse::<BlockHash>().map_err(E::BestBlock)?;
-
         let tx_out = TxOut {
             value: Amount::from_btc(self.value).map_err(E::Value)?,
             script_pubkey: ScriptBuf::from_hex(&self.script_pubkey.hex).map_err(E::ScriptPubkey)?,
@@ -988,6 +1164,8 @@ impl GetTxOut {
 /// Error when converting a `GetTxOut` type into the model type.
 #[derive(Debug)]
 pub enum GetTxOutError {
+    /// Conversion of numeric type to expected type failed.
+    Numeric(NumericError),
     /// Conversion of the transaction `best_block` field failed.
     BestBlock(hex::HexToArrayError),
     /// Conversion of the transaction `value` field failed.
@@ -1003,7 +1181,8 @@ impl fmt::Display for GetTxOutError {
         use GetTxOutError::*;
 
         match *self {
-            BestBlock(ref e) => write_err!(f, "conversion of the `best_block` field failed"; e),
+            Numeric(ref e) => write_err!(f, "numeric"; e),
+            BestBlock(ref e) => write_err!(f, "conversion of the `beast_block` field failed"; e),
             Value(ref e) => write_err!(f, "conversion of the `value` field failed"; e),
             ScriptPubkey(ref e) =>
                 write_err!(f, "conversion of the `script_pubkey` field failed"; e),
@@ -1017,10 +1196,15 @@ impl std::error::Error for GetTxOutError {
         use GetTxOutError::*;
 
         match *self {
+            Numeric(ref e) => Some(e),
             BestBlock(ref e) => Some(e),
             Value(ref e) => Some(e),
             ScriptPubkey(ref e) => Some(e),
             Address(ref e) => Some(e),
         }
     }
+}
+
+impl From<NumericError> for GetTxOutError {
+    fn from(e: NumericError) -> Self { Self::Numeric(e) }
 }

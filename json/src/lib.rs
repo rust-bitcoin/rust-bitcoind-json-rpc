@@ -22,3 +22,49 @@ pub mod v27;
 
 // JSON types that model _all_ `bitcoind` versions.
 pub mod model;
+
+use std::fmt;
+
+/// Converts an `i64` numeric type to a `u32`.
+///
+/// The Bitcoin Core JSONRPC API has fields marked as 'numeric'. It is not obvious what Rust
+/// type these fields should be.
+///
+/// We want the version specific JSON types to just work (TM).
+///
+/// 1. We use an `i64` because its the biggest signed integer on "common" machines.
+/// 2. We use a signed integer because Core sometimes returns -1.
+///
+/// (2) was discovered in the wild but is hard to test for.
+pub fn to_u32(value: i64, field: &str) -> Result<u32, NumericError> {
+    if value.is_negative() {
+        return Err(NumericError::Negative { value, field: field.to_owned() });
+    }
+    u32::try_from(value).map_err(|_| NumericError::Overflow { value, field: field.to_owned() })
+}
+
+/// Error converting an `i64` to a `u32`.
+///
+/// If we expect a numeric value to sanely fit inside a `u32` we use that type in the `model`
+/// module, this requires converting the `i64` returned by the JSONRPC API into a `u32`, if our
+/// expectations are not met this error will be encountered.
+#[derive(Debug)]
+pub enum NumericError {
+    /// Expected an unsigned numeric value however the value was negative.
+    Negative { field: String, value: i64 },
+    /// A value larger than `u32::MAX` was unexpectedly encountered.
+    Overflow { field: String, value: i64 },
+}
+
+impl fmt::Display for NumericError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use NumericError::*;
+
+        match *self {
+            Negative{ ref field, value } => write!(f, "expected an unsigned numeric value however the value was negative (field name: {} value: {})", field, value),
+            Overflow { ref field, value } => write!(f, "a  value larger than `u32::MAX` was unexpectedly encountered (field name: {} Value: {})", field, value),
+        }
+    }
+}
+
+impl std::error::Error for NumericError {}
