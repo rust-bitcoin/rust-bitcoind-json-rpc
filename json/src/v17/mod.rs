@@ -8,9 +8,10 @@
 //! in the `model` module are version non-specific and are strongly typed using `rust-bitcoin`.
 //!
 //! Key:
-//! - `[ ]` means not yet done.
-//! - `[x]` marks means implemented _and_ tested.
-//! - `[-]` means it was considered and intentionally not done.
+//! - `[ ]` Not yet done.
+//! - `[x]` Implemented _and_ tested.
+//! - `[-]` Intentionally not done, typically because method does not return anything, returns
+//!         a single integer, or is deprecated.
 //!
 //! **== Blockchain ==**
 //! - [x] `getbestblockhash`
