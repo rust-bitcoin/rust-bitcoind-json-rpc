@@ -42,8 +42,6 @@ impl GetBestBlockHash {
 /// Result of JSON-RPC method `getblock` with verbosity set to 0.
 ///
 /// A string that is serialized, hex-encoded data for block 'hash'.
-///
-/// Method call: `getblock "blockhash" ( verbosity )`
 #[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
 pub struct GetBlockVerbosityZero(pub String);
 
