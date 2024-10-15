@@ -6,7 +6,14 @@
 //!
 /// These types do not implement `into_model` because apart from fee rate there is no additional
 /// `rust-bitcoin` types needed.
+use core::fmt;
+use std::collections::BTreeMap;
+
+use bitcoin::amount::ParseAmountError;
+use internals::write_err;
 use serde::{Deserialize, Serialize};
+
+use crate::model;
 
 /// Result of JSON-RPC method `getaddednodeinfo`.
 ///
@@ -18,17 +25,17 @@ use serde::{Deserialize, Serialize};
 /// > Arguments:
 /// > 1. "node"   (string, optional) If provided, return information about this specific node, otherwise all nodes are returned.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub struct GetAddedNodeInfo(Vec<AddedNode>);
+pub struct GetAddedNodeInfo(pub Vec<AddedNode>);
 
 /// An item from the list returned by the JSON-RPC method `getaddednodeinfo`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct AddedNode {
-    /// The node IP address or name (as provided to addnode)
+    /// The node IP address or name (as provided to addnode).
     #[serde(rename = "addednode")]
     pub added_node: String,
-    /// If connected
+    /// If connected.
     pub connected: bool,
-    /// Only when connected = true
+    /// Only when connected = true.
     pub addresses: Vec<AddedNodeAddress>,
 }
 
@@ -37,7 +44,7 @@ pub struct AddedNode {
 pub struct AddedNodeAddress {
     /// The bitcoin server IP and port we're connected to.
     pub address: String,
-    /// connection, inbound or outbound
+    /// Connection, inbound or outbound.
     pub connected: String,
 }
 
@@ -105,8 +112,8 @@ pub struct GetNetworkInfo {
     pub time_offset: isize,
     /// The total number of connections.
     pub connections: usize,
-    #[serde(rename = "networkactive")]
     /// Whether p2p networking is enabled.
+    #[serde(rename = "networkactive")]
     pub network_active: bool,
     /// Information per network.
     pub networks: Vec<GetNetworkInfoNetwork>,
@@ -141,12 +148,90 @@ pub struct GetNetworkInfoNetwork {
 /// Part of the result of the JSON-RPC method `getnetworkinfo` (local address info).
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct GetNetworkInfoAddress {
-    /// Network address
+    /// Network address.
     pub address: String,
-    /// Network port
+    /// Network port.
     pub port: u16,
-    /// Relative score
+    /// Relative score.
     pub score: u32,
+}
+
+impl GetNetworkInfo {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> Result<model::GetNetworkInfo, GetNetworkInfoError> {
+        use GetNetworkInfoError as E;
+
+        let relay_fee = crate::btc_per_kb(self.relay_fee).map_err(E::RelayFee)?;
+        let incremental_fee = crate::btc_per_kb(self.incremental_fee).map_err(E::IncrementalFee)?;
+
+        Ok(model::GetNetworkInfo {
+            version: self.version,
+            subversion: self.subversion,
+            protocol_version: self.protocol_version,
+            local_services: self.local_services,
+            local_relay: self.local_relay,
+            time_offset: self.time_offset,
+            connections: self.connections,
+            network_active: self.network_active,
+            networks: self.networks.into_iter().map(|n| n.into_model()).collect(),
+            relay_fee,
+            incremental_fee,
+            local_addresses: self.local_addresses.into_iter().map(|a| a.into_model()).collect(),
+            warnings: self.warnings,
+        })
+    }
+}
+
+/// Error when converting a `GetTransaction` type into the model type.
+#[derive(Debug)]
+pub enum GetNetworkInfoError {
+    /// Conversion of the `relay_fee` field failed.
+    RelayFee(ParseAmountError),
+    /// Conversion of the `incremental_fee` field failed.
+    IncrementalFee(ParseAmountError),
+}
+
+impl fmt::Display for GetNetworkInfoError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use GetNetworkInfoError as E;
+
+        match *self {
+            E::RelayFee(ref e) => write_err!(f, "conversion of the `relay_fee` field failed"; e),
+            E::IncrementalFee(ref e) =>
+                write_err!(f, "conversion of the `incremental_fee` field failed"; e),
+        }
+    }
+}
+
+impl std::error::Error for GetNetworkInfoError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        use GetNetworkInfoError as E;
+
+        match *self {
+            E::RelayFee(ref e) => Some(e),
+            E::IncrementalFee(ref e) => Some(e),
+        }
+    }
+}
+
+impl GetNetworkInfoNetwork {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> model::GetNetworkInfoNetwork {
+        model::GetNetworkInfoNetwork {
+            name: self.name,
+            limited: self.limited,
+            reachable: self.reachable,
+            proxy: self.proxy,
+            proxy_randomize_credentials: self.proxy_randomize_credentials,
+        }
+    }
+}
+
+impl GetNetworkInfoAddress {
+    /// Converts version specific type to a version in-specific, more strongly typed type.
+    pub fn into_model(self) -> model::GetNetworkInfoAddress {
+        model::GetNetworkInfoAddress { address: self.address, port: self.port, score: self.score }
+    }
 }
 
 /// Result of JSON-RPC method `getpeerinfo`.
@@ -160,7 +245,7 @@ pub struct GetPeerInfo(pub Vec<PeerInfo>);
 /// An item from the list returned by the JSON-RPC method `getpeerinfo`.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct PeerInfo {
-    /// Peer index
+    /// Peer index.
     pub id: u32,
     /// The IP address and port of the peer ("host:port").
     #[serde(rename = "addr")]
@@ -176,22 +261,22 @@ pub struct PeerInfo {
     /// Whether peer has asked us to relay transactions to it.
     #[serde(rename = "relaytxes")]
     pub relay_transactions: bool,
-    /// The time in seconds since epoch (Jan 1 1970 GMT) of the last send
+    /// The time in seconds since epoch (Jan 1 1970 GMT) of the last send.
     #[serde(rename = "lastsend")]
     pub last_send: u32,
-    /// The time in seconds since epoch (Jan 1 1970 GMT) of the last receive
+    /// The time in seconds since epoch (Jan 1 1970 GMT) of the last receive.
     #[serde(rename = "lastrecv")]
     pub last_received: u32,
-    /// The total bytes sent
+    /// The total bytes sent.
     #[serde(rename = "bytessent")]
     pub bytes_sent: u64,
-    /// The total bytes received
+    /// The total bytes received.
     #[serde(rename = "bytesrecv")]
     pub bytes_received: u64,
-    /// The connection time in seconds since epoch (Jan 1 1970 GMT)
+    /// The connection time in seconds since epoch (Jan 1 1970 GMT).
     #[serde(rename = "conntime")]
     pub connection_time: u32,
-    /// The time offset in seconds
+    /// The time offset in seconds.
     #[serde(rename = "timeoffset")]
     pub time_offset: u32,
     /// Ping time (if available).
@@ -206,7 +291,8 @@ pub struct PeerInfo {
     /// The peer version, such as 70001.
     pub version: u32,
     /// The string version (e.g. "/Satoshi:0.8.5/").
-    pub subver: String,
+    #[serde(rename = "subver")]
+    pub subversion: String,
     /// Inbound (true) or Outbound (false).
     pub inbound: bool,
     /// Whether connection was due to addnode/-connect or if it was an automatic/inbound connection.
@@ -227,14 +313,21 @@ pub struct PeerInfo {
     /// Whether the peer is whitelisted.
     pub whitelisted: bool,
     /// The total bytes sent aggregated by message type.
-    pub bytes_sent_per_message: Vec<BytesPerMessage>,
+    #[serde(rename = "bytessent_per_msg")]
+    pub bytes_sent_per_message: BTreeMap<String, u64>,
     /// The total bytes received aggregated by message type.
-    pub bytes_received_per_message: Vec<BytesPerMessage>,
+    #[serde(rename = "bytesrecv_per_msg")]
+    pub bytes_received_per_message: BTreeMap<String, u64>,
 }
 
-/// An item from the list returned by the JSON-RPC method `getpeerinfo`.
+/// Result of JSON-RPC method `listbanned`.
+///
+/// > listbanned
+///
+/// > List all banned IPs/Subnets.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub struct BytesPerMessage {
-    #[serde(rename = "addr")]
-    pub address: u32, // FIXME: This looks wrong.
-}
+pub struct ListBanned(pub Vec<Banned>);
+
+/// An item from the list returned by the JSON-RPC method `listbanned`
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct Banned(String); // FIXME: The docs are empty so I don't know what shape this is.

@@ -61,7 +61,7 @@
 //! - [-] `addnode "node" "add|remove|onetry"`
 //! - [-] `clearbanned`
 //! - [-] `disconnectnode "[address]" [nodeid]`
-//! - [ ] `getaddednodeinfo ( "node" )`
+//! - [x] `getaddednodeinfo ( "node" )`
 //! - [-] `getconnectioncount`
 //! - [x] `getnettotals`
 //! - [x] `getnetworkinfo`
@@ -181,8 +181,9 @@ pub use self::{
     control::{GetMemoryInfoStats, Locked, Logging, Uptime},
     generating::{Generate, GenerateToAddress},
     network::{
-        AddedNodeAddress, BytesPerMessage, GetAddedNodeInfo, GetNetTotals, GetNetworkInfo,
-        GetNetworkInfoAddress, GetNetworkInfoNetwork, GetPeerInfo, PeerInfo, UploadTarget,
+        AddedNode, AddedNodeAddress, Banned, GetAddedNodeInfo, GetNetTotals, GetNetworkInfo,
+        GetNetworkInfoAddress, GetNetworkInfoNetwork, GetPeerInfo, ListBanned, PeerInfo,
+        UploadTarget,
     },
     raw_transactions::SendRawTransaction,
     wallet::{

@@ -12,6 +12,7 @@ mod blockchain;
 mod control;
 mod generating;
 mod mining;
+mod network;
 mod raw_transactions;
 mod util;
 mod wallet;
@@ -32,6 +33,7 @@ pub use self::{
         GetMempoolAncestorsVerbose, GetTxOut, Softfork, SoftforkType,
     },
     generating::{Generate, GenerateToAddress},
+    network::{GetNetworkInfo, GetNetworkInfoAddress, GetNetworkInfoNetwork},
     raw_transactions::SendRawTransaction,
     wallet::{
         CreateWallet, GetBalance, GetBalances, GetBalancesMine, GetBalancesWatchOnly,
