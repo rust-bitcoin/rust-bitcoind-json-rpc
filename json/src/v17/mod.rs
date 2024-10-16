@@ -8,9 +8,10 @@
 //! in the `model` module are version non-specific and are strongly typed using `rust-bitcoin`.
 //!
 //! Key:
-//! - `[ ]` means not yet done.
-//! - `[x]` marks means implemented _and_ tested.
-//! - `[-]` means it was considered and intentionally not done.
+//! - `[ ]` Not yet done.
+//! - `[x]` Implemented _and_ tested.
+//! - `[-]` Intentionally not done, typically because method does not return anything, returns
+//!         a single integer, or is deprecated.
 //!
 //! **== Blockchain ==**
 //! - [x] `getbestblockhash`
@@ -60,7 +61,7 @@
 //! - [-] `addnode "node" "add|remove|onetry"`
 //! - [-] `clearbanned`
 //! - [-] `disconnectnode "[address]" [nodeid]`
-//! - [ ] `getaddednodeinfo ( "node" )`
+//! - [x] `getaddednodeinfo ( "node" )`
 //! - [-] `getconnectioncount`
 //! - [x] `getnettotals`
 //! - [x] `getnetworkinfo`
@@ -180,8 +181,9 @@ pub use self::{
     control::{GetMemoryInfoStats, Locked, Logging, Uptime},
     generating::{Generate, GenerateToAddress},
     network::{
-        AddedNodeAddress, BytesPerMessage, GetAddedNodeInfo, GetNetTotals, GetNetworkInfo,
-        GetNetworkInfoAddress, GetNetworkInfoNetwork, GetPeerInfo, PeerInfo, UploadTarget,
+        AddedNode, AddedNodeAddress, Banned, GetAddedNodeInfo, GetNetTotals, GetNetworkInfo,
+        GetNetworkInfoAddress, GetNetworkInfoNetwork, GetPeerInfo, ListBanned, PeerInfo,
+        UploadTarget,
     },
     raw_transactions::SendRawTransaction,
     wallet::{

@@ -25,6 +25,9 @@ pub mod model;
 
 use std::fmt;
 
+use bitcoin::amount::ParseAmountError;
+use bitcoin::{Amount, FeeRate};
+
 /// Converts an `i64` numeric type to a `u32`.
 ///
 /// The Bitcoin Core JSONRPC API has fields marked as 'numeric'. It is not obvious what Rust
@@ -68,3 +71,15 @@ impl fmt::Display for NumericError {
 }
 
 impl std::error::Error for NumericError {}
+
+/// Converts `fee_rate` in BTC/kB to `FeeRate`.
+fn btc_per_kb(btc_per_kb: f64) -> Result<Option<FeeRate>, ParseAmountError> {
+    let btc_per_byte = btc_per_kb / 1000_f64;
+    let sats_per_byte = Amount::from_btc(btc_per_byte)?;
+
+    // Virtual bytes equal bytes before segwit.
+    let rate = FeeRate::from_sat_per_vb(sats_per_byte.to_sat());
+
+    Ok(rate)
+}
+
