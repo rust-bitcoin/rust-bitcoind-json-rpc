@@ -24,7 +24,7 @@ serde_json = { version = "1.0.117" }
 env_logger = "0.9.0"
 
 [build-dependencies]
-bitcoin_hashes = { version = ">= 0.13, <= 0.14", optional = true }
+bitcoin_hashes = { version = "0.15", optional = true }
 flate2 = { version = "1.0", optional = true }
 tar = { version = "0.4", optional = true }
 minreq = { version = "2.9.1", default-features = false, features = [
@@ -77,3 +77,32 @@ path = "../client"
 
 [patch.crates-io.bitcoind-json-rpc-types]
 path = "../json"
+
+
+[patch.crates-io.base58ck]
+git = "https://github.com/tcharding/rust-bitcoin"
+branch = "10-18-consensus-error"
+
+[patch.crates-io.bitcoin]
+git = "https://github.com/tcharding/rust-bitcoin"
+branch = "10-18-consensus-error"
+
+[patch.crates-io.bitcoin_hashes]
+git = "https://github.com/tcharding/rust-bitcoin"
+branch = "10-18-consensus-error"
+
+[patch.crates-io.bitcoin-internals]
+git = "https://github.com/tcharding/rust-bitcoin"
+branch = "10-18-consensus-error"
+
+[patch.crates-io.bitcoin-io]
+git = "https://github.com/tcharding/rust-bitcoin"
+branch = "10-18-consensus-error"
+
+[patch.crates-io.bitcoin-primitives]
+git = "https://github.com/tcharding/rust-bitcoin"
+branch = "10-18-consensus-error"
+
+[patch.crates-io.bitcoin-units]
+git = "https://github.com/tcharding/rust-bitcoin"
+branch = "10-18-consensus-error"

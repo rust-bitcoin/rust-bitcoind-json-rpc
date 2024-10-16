@@ -112,8 +112,6 @@ pub enum P2P {
 
 /// All the possible error in this crate
 pub enum Error {
-    /// Wrapper of io Error
-    Io(std::io::Error),
     /// Wrapper of bitcoincore_rpc Error
     Rpc(client_sync::Error),
     /// Returned when calling methods requiring a feature to be activated, but it's not
@@ -141,7 +139,6 @@ impl fmt::Debug for Error {
         use Error::*;
 
         match self {
-            Io(_) => write!(f, "io::Error"), // FIXME: Use bitcoin-internals.
             Rpc(_) => write!(f, "bitcoin_rpc::Error"),
             NoFeature => write!(f, "Called a method requiring a feature to be set, but it's not"),
             NoEnvVar => write!(f, "Called a method requiring env var `BITCOIND_EXE` to be set, but it's not"),
@@ -164,7 +161,6 @@ impl std::error::Error for Error {
         use Error::*;
 
         match *self {
-            Error::Io(ref e) => Some(e),
             Error::Rpc(ref e) => Some(e),
             NoFeature
             | NoEnvVar
@@ -502,10 +498,6 @@ pub fn get_available_port() -> anyhow::Result<u16> {
     // using 0 as port let the system assign a port available
     let t = TcpListener::bind(("127.0.0.1", 0))?; // 0 means the OS choose a free port
     Ok(t.local_addr().map(|s| s.port())?)
-}
-
-impl From<std::io::Error> for Error {
-    fn from(e: std::io::Error) -> Self { Error::Io(e) }
 }
 
 impl From<client_sync::Error> for Error {

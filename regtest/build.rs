@@ -16,7 +16,7 @@ mod download {
     use std::str::FromStr;
 
     use anyhow::Context;
-    use bitcoin_hashes::{sha256, Hash};
+    use bitcoin_hashes::sha256;
     use flate2::read::GzDecoder;
     use tar::Archive;
 
