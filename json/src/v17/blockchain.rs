@@ -9,8 +9,10 @@ use std::fmt;
 use std::str::FromStr;
 
 use bitcoin::consensus::encode;
-use bitcoin::error::UnprefixedHexError;
 use bitcoin::hex::FromHex;
+use bitcoin::parse::UnprefixedHexError;
+use bitcoin::pow::CompactTargetExt as _;
+use bitcoin::script::ScriptBufExt as _;
 use bitcoin::{
     address, amount, block, hex, network, Address, Amount, Block, BlockHash, CompactTarget,
     FeeRate, Network, ScriptBuf, TxMerkleNode, TxOut, Txid, Weight, Work,
@@ -477,7 +479,7 @@ pub enum GetBlockHeaderError {
     /// Conversion of hex data to bytes failed.
     Hex(hex::HexToBytesError),
     /// Consensus decoding of bytes to header failed.
-    Consensus(encode::Error),
+    Consensus(encode::DeserializeError),
 }
 
 impl fmt::Display for GetBlockHeaderError {
