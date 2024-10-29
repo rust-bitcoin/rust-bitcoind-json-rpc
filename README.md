@@ -24,9 +24,9 @@ or otherwise enjoy yourself with anything in this repository - no attribution re
 ## Original code
 
 I don't know who is using `bitcoind` and/or `rust-bitocincore-rpc` in the wild and I do not want to
-disrupt them. As such `bitcoind` was pulled in here with permission of the original author. Code
-from `rust-bitcoincore-rpc` was just shamelessy stolen. As such I have maintained the original
-author's list and added my own name for accountability. All bugs are my own (tcharding).
+disrupt them. As such `bitcoind` was pulled in here with permission of the original author.
+
+Some code shamelessly stolen from `rust-bitcoincore-rpc` (credit to Steven).
 
 - [rust-bitcoincore-rpcv0.19.0](https://github.com/rust-bitcoin/rust-bitcoincore-rpc)
 - [`bitcoind`](https://crates.io/crates/bitcoind)
