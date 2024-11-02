@@ -177,7 +177,7 @@ impl GetNetworkInfo {
             relay_fee,
             incremental_fee,
             local_addresses: self.local_addresses.into_iter().map(|a| a.into_model()).collect(),
-            warnings: self.warnings,
+            warnings: vec![self.warnings],
         })
     }
 }

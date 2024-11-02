@@ -19,6 +19,7 @@ pub mod v24;
 pub mod v25;
 pub mod v26;
 pub mod v27;
+pub mod v28;
 
 // JSON types that model _all_ `bitcoind` versions.
 pub mod model;
@@ -82,4 +83,3 @@ fn btc_per_kb(btc_per_kb: f64) -> Result<Option<FeeRate>, ParseAmountError> {
 
     Ok(rate)
 }
-

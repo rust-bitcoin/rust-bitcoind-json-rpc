@@ -182,8 +182,8 @@ pub use self::{
     generating::{Generate, GenerateToAddress},
     network::{
         AddedNode, AddedNodeAddress, Banned, GetAddedNodeInfo, GetNetTotals, GetNetworkInfo,
-        GetNetworkInfoAddress, GetNetworkInfoNetwork, GetPeerInfo, ListBanned, PeerInfo,
-        UploadTarget,
+        GetNetworkInfoAddress, GetNetworkInfoError, GetNetworkInfoNetwork, GetPeerInfo, ListBanned,
+        PeerInfo, UploadTarget,
     },
     raw_transactions::SendRawTransaction,
     wallet::{

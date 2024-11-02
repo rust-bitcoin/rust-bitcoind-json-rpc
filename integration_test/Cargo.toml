@@ -13,6 +13,7 @@ edition = "2021"
 [features]
 # Enable the same feature in `bitcoind` and the version feature here.
 # All minor releases (but only the latest patch release).
+"28_0" = ["v28", "bitcoind/28_0"]
 "27_1" = ["v27", "bitcoind/27_1"]
 "27_0" = ["v27", "bitcoind/27_0"]
 "26_2" = ["v26", "bitcoind/26_2"]
@@ -37,6 +38,7 @@ edition = "2021"
 "0_17_1" = ["v17", "bitcoind/0_17_1"]
 
 # Each minor version is tested with the same client.
+"v28" = []
 "v27" = []
 "v26" = []
 "v25" = []

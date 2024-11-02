@@ -36,7 +36,7 @@ pub struct GetNetworkInfo {
     /// List of local addresses.
     pub local_addresses: Vec<GetNetworkInfoAddress>,
     /// Any network and blockchain warnings.
-    pub warnings: String,
+    pub warnings: Vec<String>,
 }
 
 /// Part of the result of the JSON-RPC method `getnetworkinfo` (information per network).
